@@ -1,16 +1,12 @@
 <template>
   <a-layout>
     <TheHeader></TheHeader>
-      <router-view/>
-    <a-layout-footer style="text-align: center">
-      电子书
-    </a-layout-footer>
+    <router-view />
+    <TheFooter></TheFooter>
   </a-layout>
 </template>
 
 <style>
-
-
 #components-layout-demo-top-side-2 .logo {
   float: left;
   width: 120px;
@@ -28,14 +24,17 @@
   background: #fff;
 }
 </style>
-<script >
+<script>
+import { defineComponent } from "vue";
 import TheHeader from "@/components/TheHeader.vue";
-import { defineComponent } from 'vue';
+
+import TheFooter from "@/components/TheFooter.vue";
 
 export default defineComponent({
-  name: 'app',
- components:{
-    TheHeader
- }
+  name: "app",
+  components: {
+    TheFooter,
+    TheHeader,
+  },
 });
 </script>
