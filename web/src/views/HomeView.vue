@@ -52,24 +52,66 @@
         minHeight: '280px',
       }"
     >
-      <pre>
-         {{ ebooks }}
-        {{ book }}
-      </pre>
+      <a-list
+        item-layout="vertical"
+        size="large"
+        :data-source="ebooks"
+        :grid="{ gutter: 20, column: 3 }"
+      >
+        <template #renderItem="{ item }">
+          <a-list-item key="item.name">
+            <template #actions>
+              <span v-for="{ icon, text } in actions" :key="text">
+                <component :is="icon" style="margin-right: 8px" />
+                {{ text }}
+              </span>
+            </template>
+
+            <a-list-item-meta :description="item.description">
+              <template #title>
+                <a :href="item.href">{{ item.name }}</a>
+              </template>
+              <template #avatar>
+                <a-avatar :src="item.cover" />
+              </template>
+            </a-list-item-meta>
+          </a-list-item>
+        </template>
+      </a-list>
     </a-layout-content>
   </a-layout>
 </template>
 
-<script>
+<script lang="ts">
 import { defineComponent, onMounted, reactive, ref, toRef } from "vue";
 import axios from "axios";
+import {
+  StarOutlined,
+  LikeOutlined,
+  MessageOutlined,
+} from "@ant-design/icons-vue";
 
+const listData: Record<string, string>[] = [];
+
+for (let i = 0; i < 23; i++) {
+  listData.push({
+    href: "https://www.antdv.com/",
+    title: `ant design vue part ${i}`,
+    avatar: "https://joeschmoe.io/api/v1/random",
+    description:
+      "Ant Design, a design language for background applications, is refined by Ant UED Team.",
+    content:
+      "We supply a series of design principles, practical patterns and high quality design resources (Sketch and Axure), to help people create their product prototypes beautifully and efficiently.",
+  });
+}
 export default defineComponent({
   name: "HomeView",
+
   setup() {
     console.log("setup");
     const ebooks = ref();
     const ebooks1 = reactive({ books: [] });
+
     onMounted(() => {
       console.log("onMounted");
       axios
@@ -84,6 +126,18 @@ export default defineComponent({
     return {
       ebooks,
       book: toRef(ebooks1, "books"),
+      listData,
+      pagination: {
+        onChange: (page: number) => {
+          console.log(page);
+        },
+        pageSize: 3,
+      },
+      actions: [
+        { icon: StarOutlined, text: "156" },
+        { icon: LikeOutlined, text: "156" },
+        { icon: MessageOutlined, text: "2" },
+      ],
     };
   },
 });
