@@ -6,6 +6,10 @@ import com.example.springwiki.mapper.EbookMapper;
 import com.example.springwiki.req.EbookReq;
 import com.example.springwiki.resp.EbookResp;
 import com.example.springwiki.util.CopyUtil;
+import com.github.pagehelper.PageHelper;
+import com.github.pagehelper.PageInfo;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.util.ObjectUtils;
 
@@ -20,6 +24,7 @@ import java.util.List;
 public class EbookService {
     @Resource
     private EbookMapper ebookMapper;
+    private static final Logger Log = LoggerFactory.getLogger(EbookService.class);
 
     public List<EbookResp> list(EbookReq req) {
         EbookExample ebookExample = new EbookExample();
@@ -28,8 +33,14 @@ public class EbookService {
         if (!ObjectUtils.isEmpty(req.getName())) {
             criteria.andNameLike("%" + req.getName() + "%");
         }
+        // 从第一页开始,每页3条数据
+        PageHelper.startPage(1, 3);
 
         List<Ebook> ebookList = ebookMapper.selectByExample(ebookExample);
+        PageInfo<Ebook> pageInfo = new PageInfo<>(ebookList);
+        // 日志输出,用占位符的写法
+        Log.info("总行数:{}", pageInfo.getTotal());
+        Log.info("总页数:{}", pageInfo.getPages());
 //        List<EbookResp> reqList = new ArrayList<>();
 //        for (Ebook ebook : ebookList) {
 ////            EbookResp ebookResp = new EbookResp();
