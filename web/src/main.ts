@@ -5,7 +5,9 @@ import router from "./router";
 import store from "./store";
 import "ant-design-vue/dist/reset.css";
 import * as Icons from "@ant-design/icons-vue";
-
+import axios from "axios";
+// 全局配置axios 的域
+axios.defaults.baseURL = process.env.VUE_APP_SERVER;
 const app = createApp(App);
 app.use(Antd).use(store).use(router).mount("#app");
 // 全局注册 icons
