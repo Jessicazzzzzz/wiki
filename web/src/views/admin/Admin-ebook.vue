@@ -35,9 +35,8 @@ export default defineComponent({
   name: "AdminEbook",
   setup() {
     const ebooks = ref();
-    // 初始化
-    // current 是当前页数
-    // pageSize 是每页条数
+    //current 当前的页数
+    //pageSize 每页的个数
     const pagination = ref({
       current: 1,
       pageSize: 2,
