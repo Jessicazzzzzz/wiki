@@ -41,5 +41,18 @@ public class EbookController {
         return response;
     }
 
+    /**
+     * "/delete/{id}" 中的id 会自动映射到@PathVariable Long id中的id 中去
+     *
+     * @param id
+     * @return
+     */
+    @DeleteMapping("/delete/{id}")
+    public CommonResp delete(@PathVariable Long id) {
+        CommonResp response = new CommonResp<>();
+        ebookService.delete(id);
+        return response;
+    }
+
 
 }

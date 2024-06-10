@@ -24,7 +24,15 @@
       <template v-slot:action="{ text, record }">
         <a-space size="small">
           <a-button type="primary" @click="edit(record)">编辑</a-button>
-          <a-button type="ghost">删除</a-button>
+
+          <a-popconfirm
+            title="删除后不可以恢复,确认删除?"
+            ok-text="Yes"
+            cancel-text="No"
+            @confirm="handleDelete(record.id)"
+          >
+            <a-button type="ghost">删除 </a-button>
+          </a-popconfirm>
         </a-space>
       </template>
     </a-table>
@@ -49,7 +57,7 @@
         <a-input v-model:value="ebook.category2Id" />
       </a-form-item>
       <a-form-item label="描述">
-        <a-input v-model:value="ebook.desc" type="text" />
+        <a-input v-model:value="ebook.description" type="textarea" />
       </a-form-item>
     </a-form>
   </a-modal>
@@ -154,7 +162,7 @@ export default defineComponent({
       cover: string | null | undefined;
       category1Id: number | null | undefined;
       category2Id: number | null | undefined;
-      desc: string | null | undefined;
+      description: string | null | undefined;
     }
 
     const ebook = ref<recordType>({
@@ -162,7 +170,7 @@ export default defineComponent({
       cover: "",
       category1Id: 0,
       category2Id: 0,
-      desc: "",
+      description: "",
     });
     const modalVisible = ref(false);
     const modalLoading = ref(false);
@@ -197,8 +205,22 @@ export default defineComponent({
         cover: null,
         category1Id: null,
         category2Id: null,
-        desc: null,
+        description: null,
       };
+    };
+
+    //删除
+    const handleDelete = (id: number) => {
+      axios.delete("ebook/delete/" + id).then((response) => {
+        const data = response.data;
+        if (data.success) {
+          //重新加载列表
+          handleQuery({
+            page: pagination.value.current,
+            size: pagination.value.pageSize,
+          });
+        }
+      });
     };
 
     return {
@@ -213,6 +235,7 @@ export default defineComponent({
       modalLoading,
       handleLoading,
       ebook,
+      handleDelete,
     };
   },
 });
