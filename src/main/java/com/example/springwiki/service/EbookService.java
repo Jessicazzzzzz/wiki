@@ -8,6 +8,7 @@ import com.example.springwiki.req.EbookSaveReq;
 import com.example.springwiki.resp.EbookQueryResp;
 import com.example.springwiki.resp.PageResp;
 import com.example.springwiki.util.CopyUtil;
+import com.example.springwiki.util.SnowFlake;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import org.slf4j.Logger;
@@ -26,6 +27,8 @@ import java.util.List;
 public class EbookService {
     @Resource
     private EbookMapper ebookMapper;
+    @Resource
+    private SnowFlake snowFlake;
     private static final Logger Log = LoggerFactory.getLogger(EbookService.class);
 
     public PageResp<EbookQueryResp> list(EbookQueryReq req) {
@@ -70,6 +73,7 @@ public class EbookService {
         Ebook ebook = CopyUtil.copy(req, Ebook.class);
         if (ObjectUtils.isEmpty(ebook.getId())) {
             // 新增,是根据是否存在id来决定的
+            ebook.setId(snowFlake.nextId());
             ebookMapper.insert(ebook);
         } else {
 //             修改

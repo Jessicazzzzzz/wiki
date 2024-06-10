@@ -7,6 +7,9 @@
       minHeight: '280px',
     }"
   >
+    <p>
+      <a-button type="primary" @click="add()" size="large">新增</a-button>
+    </p>
     <a-table
       :columns="columns"
       :data-source="ebooks"
@@ -147,11 +150,11 @@ export default defineComponent({
 
     // 表单-----
     interface recordType {
-      name: string;
-      cover: string;
-      category1Id: number;
-      category2Id: number;
-      desc: string;
+      name: string | null | undefined;
+      cover: string | null | undefined;
+      category1Id: number | null | undefined;
+      category2Id: number | null | undefined;
+      desc: string | null | undefined;
     }
 
     const ebook = ref<recordType>({
@@ -186,12 +189,25 @@ export default defineComponent({
       ebook.value = record;
     };
 
+    // 新增
+    const add = () => {
+      modalVisible.value = true;
+      ebook.value = {
+        name: null,
+        cover: null,
+        category1Id: null,
+        category2Id: null,
+        desc: null,
+      };
+    };
+
     return {
       ebooks,
       pagination,
       columns,
       loading,
       handleTableChange,
+      add,
       edit,
       modalVisible,
       modalLoading,

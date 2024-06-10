@@ -1,6 +1,7 @@
 package com.example.springwiki.resp;
 
 public class EbookQueryResp {
+
     private Long id;
 
     private String name;
