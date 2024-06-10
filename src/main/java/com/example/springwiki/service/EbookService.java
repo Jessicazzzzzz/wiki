@@ -5,6 +5,7 @@ import com.example.springwiki.domain.EbookExample;
 import com.example.springwiki.mapper.EbookMapper;
 import com.example.springwiki.req.EbookReq;
 import com.example.springwiki.resp.EbookResp;
+import com.example.springwiki.resp.PageResp;
 import com.example.springwiki.util.CopyUtil;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
@@ -26,7 +27,7 @@ public class EbookService {
     private EbookMapper ebookMapper;
     private static final Logger Log = LoggerFactory.getLogger(EbookService.class);
 
-    public List<EbookResp> list(EbookReq req) {
+    public PageResp<EbookResp> list(EbookReq req) {
         EbookExample ebookExample = new EbookExample();
         EbookExample.Criteria criteria = ebookExample.createCriteria();
 //       动态添加sql
@@ -34,7 +35,7 @@ public class EbookService {
             criteria.andNameLike("%" + req.getName() + "%");
         }
         // 从第一页开始,每页3条数据
-        PageHelper.startPage(1, 3);
+        PageHelper.startPage(req.getPage(), req.getSize());
 
         List<Ebook> ebookList = ebookMapper.selectByExample(ebookExample);
         PageInfo<Ebook> pageInfo = new PageInfo<>(ebookList);
@@ -52,7 +53,9 @@ public class EbookService {
 //        }
 
         List<EbookResp> respList = CopyUtil.copyList(ebookList, EbookResp.class);
-
-        return respList;
+        PageResp<EbookResp> pageResp = new PageResp<>();
+        pageResp.setTotal(pageInfo.getTotal());
+        pageResp.setList(respList);
+        return pageResp;
     }
 }

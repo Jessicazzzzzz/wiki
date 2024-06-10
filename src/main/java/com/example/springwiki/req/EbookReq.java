@@ -1,12 +1,9 @@
 package com.example.springwiki.req;
 
-public class EbookReq {
+public class EbookReq extends PageReq {
     private Long id;
 
     private String name;
-
-
-
 
 
     public Long getId() {
@@ -26,17 +23,15 @@ public class EbookReq {
     }
 
 
-
     @Override
     public String toString() {
-        StringBuilder sb = new StringBuilder();
-        sb.append(getClass().getSimpleName());
-        sb.append(" [");
-        sb.append("Hash = ").append(hashCode());
-        sb.append(", id=").append(id);
-        sb.append(", name=").append(name);
 
-        sb.append("]");
-        return sb.toString();
+        String sb = getClass().getSimpleName() +
+                " [" +
+                "Hash = " + hashCode() +
+                ", id=" + id +
+                ", name=" + name +
+                "]";
+        return sb;
     }
 }
