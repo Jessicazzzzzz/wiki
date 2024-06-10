@@ -75,16 +75,26 @@ export default defineComponent({
         slots: { customRender: "action" },
       },
     ];
-
-    const handleQuery = (params: any) => {
+    // p 是前端的url 带的请求参数,
+    // axios 的请求写法是固定的,需要带参数,就通过对象的形式,包裹到params中去的
+    //  因为参数可能会很多,所以我们就结构p 中一部分的参数
+    const handleQuery = (p: any) => {
       loading.value = true;
-      axios.get("/ebook/list", params).then((response) => {
-        loading.value = false;
-        const data = response.data;
-        ebooks.value = data.content;
-        // 重置分页按钮
-        pagination.value.current = params.page;
-      });
+      axios
+        .get("/ebook/list", {
+          params: {
+            page: p.page,
+            size: p.size,
+          },
+        })
+        .then((response) => {
+          loading.value = false;
+          const data = response.data;
+          ebooks.value = data.content.list;
+          // 重置分页按钮
+          pagination.value.current = p.page;
+          pagination.value.total = data.content.total;
+        });
     };
 
     /**
@@ -97,9 +107,10 @@ export default defineComponent({
         size: pagitation.pageSize,
       });
     };
-
+    // page ,size 是跟后端的属性相对应的
+    // pagination 中有自己的pageSize 的属性
     onMounted(() => {
-      handleQuery({});
+      handleQuery({ page: 1, size: pagination.value.pageSize });
     });
 
     return {
