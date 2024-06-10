@@ -3,8 +3,9 @@ package com.example.springwiki.service;
 import com.example.springwiki.domain.Ebook;
 import com.example.springwiki.domain.EbookExample;
 import com.example.springwiki.mapper.EbookMapper;
-import com.example.springwiki.req.EbookReq;
-import com.example.springwiki.resp.EbookResp;
+import com.example.springwiki.req.EbookQueryReq;
+import com.example.springwiki.req.EbookSaveReq;
+import com.example.springwiki.resp.EbookQueryResp;
 import com.example.springwiki.resp.PageResp;
 import com.example.springwiki.util.CopyUtil;
 import com.github.pagehelper.PageHelper;
@@ -27,7 +28,7 @@ public class EbookService {
     private EbookMapper ebookMapper;
     private static final Logger Log = LoggerFactory.getLogger(EbookService.class);
 
-    public PageResp<EbookResp> list(EbookReq req) {
+    public PageResp<EbookQueryResp> list(EbookQueryReq req) {
         EbookExample ebookExample = new EbookExample();
         EbookExample.Criteria criteria = ebookExample.createCriteria();
 //       动态添加sql
@@ -42,20 +43,38 @@ public class EbookService {
         // 日志输出,用占位符的写法
         Log.info("总行数:{}", pageInfo.getTotal());
         Log.info("总页数:{}", pageInfo.getPages());
-//        List<EbookResp> reqList = new ArrayList<>();
+//        List<EbookQueryResp> reqList = new ArrayList<>();
 //        for (Ebook ebook : ebookList) {
-////            EbookResp ebookResp = new EbookResp();
+////            EbookQueryResp ebookResp = new EbookQueryResp();
 ////            BeanUtils.copyProperties(ebook,ebookResp);
 //            //单个对象复制
-//            EbookResp ebookResp = CopyUtil.copy(ebook, EbookResp.class);
+//            EbookQueryResp ebookResp = CopyUtil.copy(ebook, EbookQueryResp.class);
 //            reqList.add(ebookResp);
 //
 //        }
 
-        List<EbookResp> respList = CopyUtil.copyList(ebookList, EbookResp.class);
-        PageResp<EbookResp> pageResp = new PageResp<>();
+        List<EbookQueryResp> respList = CopyUtil.copyList(ebookList, EbookQueryResp.class);
+        PageResp<EbookQueryResp> pageResp = new PageResp<>();
         pageResp.setTotal(pageInfo.getTotal());
         pageResp.setList(respList);
         return pageResp;
+    }
+
+    /**
+     * 保存表单修改的数据
+     *
+     * @param req
+     */
+    public void save(EbookSaveReq req) {
+        // 将请求的参数转换为实体类
+        Ebook ebook = CopyUtil.copy(req, Ebook.class);
+        if (ObjectUtils.isEmpty(ebook.getId())) {
+            // 新增,是根据是否存在id来决定的
+            ebookMapper.insert(ebook);
+        } else {
+//             修改
+            ebookMapper.updateByPrimaryKey(ebook);
+        }
+
     }
 }

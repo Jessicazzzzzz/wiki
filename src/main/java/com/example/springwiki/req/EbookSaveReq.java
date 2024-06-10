@@ -1,6 +1,10 @@
-package com.example.springwiki.resp;
+package com.example.springwiki.req;
 
-public class EbookResp {
+/**
+ * 它跟ebook 实体类是一样的
+ */
+
+public class EbookSaveReq {
     private Long id;
 
     private String name;
@@ -93,20 +97,19 @@ public class EbookResp {
 
     @Override
     public String toString() {
-        StringBuilder sb = new StringBuilder();
-        sb.append(getClass().getSimpleName());
-        sb.append(" [");
-        sb.append("Hash = ").append(hashCode());
-        sb.append(", id=").append(id);
-        sb.append(", name=").append(name);
-        sb.append(", category1Id=").append(category1Id);
-        sb.append(", category2Id=").append(category2Id);
-        sb.append(", description=").append(description);
-        sb.append(", cover=").append(cover);
-        sb.append(", docCount=").append(docCount);
-        sb.append(", viewCount=").append(viewCount);
-        sb.append(", voteCount=").append(voteCount);
-        sb.append("]");
-        return sb.toString();
+        String sb = getClass().getSimpleName() +
+                " [" +
+                "Hash = " + hashCode() +
+                ", id=" + id +
+                ", name=" + name +
+                ", category1Id=" + category1Id +
+                ", category2Id=" + category2Id +
+                ", description=" + description +
+                ", cover=" + cover +
+                ", docCount=" + docCount +
+                ", viewCount=" + viewCount +
+                ", voteCount=" + voteCount +
+                "]";
+        return sb;
     }
 }

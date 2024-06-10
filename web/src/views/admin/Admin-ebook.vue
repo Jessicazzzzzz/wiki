@@ -85,10 +85,10 @@ export default defineComponent({
         title: "分类2",
         dataIndex: "category2Id",
       },
-      {
-        title: "分类",
-        slots: { customRender: "category" },
-      },
+      // {
+      //   title: "分类",
+      //   slots: { customRender: "category" },
+      // },
       {
         title: "文档数",
         dataIndex: "docCount",
@@ -163,18 +163,29 @@ export default defineComponent({
     });
     const modalVisible = ref(false);
     const modalLoading = ref(false);
+    // 编辑修改表单数据
     const handleLoading = () => {
       modalLoading.value = true;
-      setTimeout(() => {
-        modalVisible.value = false;
-        modalLoading.value = false;
-      }, 2000);
+      axios.post("/ebook/save", ebook.value).then((response) => {
+        const data = response.data;
+        if (data.success) {
+          // 如果返回的值是成功的话,就表示上传成功了
+          modalVisible.value = false;
+          modalLoading.value = false;
+          // 重新加载列表
+          handleQuery({
+            page: pagination.value.current,
+            size: pagination.value.pageSize,
+          });
+        }
+      });
     };
     // 编辑
     const edit = (record: recordType) => {
       modalVisible.value = true;
       ebook.value = record;
     };
+
     return {
       ebooks,
       pagination,

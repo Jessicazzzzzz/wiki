@@ -1,13 +1,12 @@
 package com.example.springwiki.controller;
 
-import com.example.springwiki.req.EbookReq;
+import com.example.springwiki.req.EbookQueryReq;
+import com.example.springwiki.req.EbookSaveReq;
 import com.example.springwiki.resp.CommonResp;
-import com.example.springwiki.resp.EbookResp;
+import com.example.springwiki.resp.EbookQueryResp;
 import com.example.springwiki.resp.PageResp;
 import com.example.springwiki.service.EbookService;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
 
@@ -22,10 +21,23 @@ public class EbookController {
     private EbookService ebookService;
 
     @GetMapping("/list")
-    public CommonResp list(EbookReq req) {
-        CommonResp<PageResp<EbookResp>> response = new CommonResp<>();
-        PageResp<EbookResp> list = ebookService.list(req);
+    public CommonResp list(EbookQueryReq req) {
+        CommonResp<PageResp<EbookQueryResp>> response = new CommonResp<>();
+        PageResp<EbookQueryResp> list = ebookService.list(req);
         response.setContent(list);
+        return response;
+    }
+
+    /**
+     * 这里需要添加@RequestBody,因为post 请求的content-type 就是application/json 格式的
+     *
+     * @param req
+     * @return
+     */
+    @PostMapping("/save")
+    public CommonResp save(@RequestBody EbookSaveReq req) {
+        CommonResp response = new CommonResp<>();
+        ebookService.save(req);
         return response;
     }
 
