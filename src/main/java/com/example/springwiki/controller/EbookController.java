@@ -9,6 +9,7 @@ import com.example.springwiki.service.EbookService;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
+import javax.validation.Valid;
 
 /**
  * @author jessica~
@@ -20,8 +21,15 @@ public class EbookController {
     @Resource
     private EbookService ebookService;
 
+    /**
+     * 添加 @Valid 就是表示里面的参数是需要添加校验规则的
+     * 而PageReq 中已经添加@Null @Max 的规则就会生效
+     *
+     * @param req
+     * @return
+     */
     @GetMapping("/list")
-    public CommonResp list(EbookQueryReq req) {
+    public CommonResp list(@Valid EbookQueryReq req) {
         CommonResp<PageResp<EbookQueryResp>> response = new CommonResp<>();
         PageResp<EbookQueryResp> list = ebookService.list(req);
         response.setContent(list);

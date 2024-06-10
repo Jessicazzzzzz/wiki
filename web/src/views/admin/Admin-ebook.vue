@@ -31,7 +31,7 @@
             cancel-text="No"
             @confirm="handleDelete(record.id)"
           >
-            <a-button type="ghost">删除 </a-button>
+            <a-button type="ghost">删除</a-button>
           </a-popconfirm>
         </a-space>
       </template>
@@ -65,6 +65,7 @@
 <script lang="ts">
 import { defineComponent, onMounted, ref } from "vue";
 import axios from "axios";
+import { message } from "ant-design-vue";
 
 export default defineComponent({
   name: "AdminEbook",
@@ -74,7 +75,7 @@ export default defineComponent({
     //pageSize 每页的个数
     const pagination = ref({
       current: 1,
-      pageSize: 2,
+      pageSize: 1000,
       total: 0,
     });
     const loading = ref(false);
@@ -133,10 +134,15 @@ export default defineComponent({
         .then((response) => {
           loading.value = false;
           const data = response.data;
-          ebooks.value = data.content.list;
-          // 重置分页按钮
-          pagination.value.current = p.page;
-          pagination.value.total = data.content.total;
+          // 查询对page 和size 进行数据校验
+          if (data.success) {
+            ebooks.value = data.content.list;
+            // 重置分页按钮
+            pagination.value.current = p.page;
+            pagination.value.total = data.content.total;
+          } else {
+            message.error(data.message);
+          }
         });
     };
 
