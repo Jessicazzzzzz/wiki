@@ -20,7 +20,7 @@
 
       <template v-slot:action="{ text, record }">
         <a-space size="small">
-          <a-button type="primary" @click="edit">编辑</a-button>
+          <a-button type="primary" @click="edit(record)">编辑</a-button>
           <a-button type="ghost">删除</a-button>
         </a-space>
       </template>
@@ -32,11 +32,23 @@
     @ok="handleLoading"
     :confirm-loading="modalLoading"
   >
-    <!--    <template #footer>-->
-    <!--      <a-button key="back" @click="handleCancel">Return</a-button>-->
-    <!--      <a-button key="submit" type="primary" :loading="loading" @click="handleOk">Submit</a-button>-->
-    <!--    </template>-->
-    <p>test</p>
+    <a-form :model="ebook" :label-col="{ span: 6 }">
+      <a-form-item label="封面">
+        <a-input v-model:value="ebook.cover" />
+      </a-form-item>
+      <a-form-item label="名称">
+        <a-input v-model:value="ebook.name" />
+      </a-form-item>
+      <a-form-item label="分类1">
+        <a-input v-model:value="ebook.category1Id" />
+      </a-form-item>
+      <a-form-item label="分类2">
+        <a-input v-model:value="ebook.category2Id" />
+      </a-form-item>
+      <a-form-item label="描述">
+        <a-input v-model:value="ebook.desc" type="text" />
+      </a-form-item>
+    </a-form>
   </a-modal>
 </template>
 <script lang="ts">
@@ -64,6 +76,14 @@ export default defineComponent({
       {
         title: "名称",
         dataIndex: "name",
+      },
+      {
+        title: "分类1",
+        dataIndex: "category1Id",
+      },
+      {
+        title: "分类2",
+        dataIndex: "category2Id",
       },
       {
         title: "分类",
@@ -124,7 +144,23 @@ export default defineComponent({
     onMounted(() => {
       handleQuery({ page: 1, size: pagination.value.pageSize });
     });
+
     // 表单-----
+    interface recordType {
+      name: string;
+      cover: string;
+      category1Id: number;
+      category2Id: number;
+      desc: string;
+    }
+
+    const ebook = ref<recordType>({
+      name: "",
+      cover: "",
+      category1Id: 0,
+      category2Id: 0,
+      desc: "",
+    });
     const modalVisible = ref(false);
     const modalLoading = ref(false);
     const handleLoading = () => {
@@ -135,8 +171,9 @@ export default defineComponent({
       }, 2000);
     };
     // 编辑
-    const edit = () => {
+    const edit = (record: recordType) => {
       modalVisible.value = true;
+      ebook.value = record;
     };
     return {
       ebooks,
@@ -148,6 +185,7 @@ export default defineComponent({
       modalVisible,
       modalLoading,
       handleLoading,
+      ebook,
     };
   },
 });
