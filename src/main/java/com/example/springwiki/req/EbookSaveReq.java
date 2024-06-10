@@ -1,12 +1,14 @@
 package com.example.springwiki.req;
 
+import javax.validation.constraints.NotNull;
+
 /**
  * 它跟ebook 实体类是一样的
  */
 
 public class EbookSaveReq {
     private Long id;
-
+    @NotNull(message = "[名称]不能为空")
     private String name;
 
     private Long category1Id;

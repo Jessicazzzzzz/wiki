@@ -75,7 +75,7 @@ export default defineComponent({
     //pageSize 每页的个数
     const pagination = ref({
       current: 1,
-      pageSize: 1000,
+      pageSize: 10,
       total: 0,
     });
     const loading = ref(false);
@@ -184,16 +184,19 @@ export default defineComponent({
     const handleLoading = () => {
       modalLoading.value = true;
       axios.post("/ebook/save", ebook.value).then((response) => {
+        modalLoading.value = false; // 后端只要返回数据,我们就去掉loading 效果
         const data = response.data;
         if (data.success) {
           // 如果返回的值是成功的话,就表示上传成功了
           modalVisible.value = false;
-          modalLoading.value = false;
+
           // 重新加载列表
           handleQuery({
             page: pagination.value.current,
             size: pagination.value.pageSize,
           });
+        } else {
+          message.error(data.message);
         }
       });
     };
