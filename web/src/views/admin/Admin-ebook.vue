@@ -8,7 +8,18 @@
     }"
   >
     <p>
-      <a-button type="primary" @click="add()" size="large">新增</a-button>
+      <a-form layout="inline" :model="param">
+        <a-form-item>
+          <a-input v-model:value="param.name" placeholder="名称"></a-input>
+        </a-form-item>
+        <a-button
+          type="primary"
+          @click="handleQuery({ page: 1, size: pagination.pageSize })"
+          size="large"
+          >查询
+        </a-button>
+        <a-button type="primary" @click="add()" size="large">新增</a-button>
+      </a-form>
     </p>
     <a-table
       :columns="columns"
@@ -129,6 +140,7 @@ export default defineComponent({
           params: {
             page: p.page,
             size: p.size,
+            name: param.value.name,
           },
         })
         .then((response) => {
@@ -171,6 +183,7 @@ export default defineComponent({
       description: string | null | undefined;
     }
 
+    //获取每一列的属性
     const ebook = ref<recordType>({
       name: "",
       cover: "",
@@ -232,12 +245,16 @@ export default defineComponent({
       });
     };
 
+    const param = ref();
+    param.value = {};
+
     return {
       ebooks,
       pagination,
       columns,
       loading,
       handleTableChange,
+      handleQuery,
       add,
       edit,
       modalVisible,
@@ -245,6 +262,7 @@ export default defineComponent({
       handleLoading,
       ebook,
       handleDelete,
+      param,
     };
   },
 });

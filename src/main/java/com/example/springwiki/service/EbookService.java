@@ -34,7 +34,7 @@ public class EbookService {
     public PageResp<EbookQueryResp> list(EbookQueryReq req) {
         EbookExample ebookExample = new EbookExample();
         EbookExample.Criteria criteria = ebookExample.createCriteria();
-//       动态添加sql
+//       动态添加sql,动态的按照来名字来查询
         if (!ObjectUtils.isEmpty(req.getName())) {
             criteria.andNameLike("%" + req.getName() + "%");
         }
@@ -55,8 +55,10 @@ public class EbookService {
 //            reqList.add(ebookResp);
 //
 //        }
+        // 尽量不要返回实体类
 
         List<EbookQueryResp> respList = CopyUtil.copyList(ebookList, EbookQueryResp.class);
+        // 需要将总页数和list 一起返回回去
         PageResp<EbookQueryResp> pageResp = new PageResp<>();
         pageResp.setTotal(pageInfo.getTotal());
         pageResp.setList(respList);
