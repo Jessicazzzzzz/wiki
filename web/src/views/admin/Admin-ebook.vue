@@ -12,13 +12,16 @@
         <a-form-item>
           <a-input v-model:value="param.name" placeholder="名称"></a-input>
         </a-form-item>
-        <a-button
-          type="primary"
-          @click="handleQuery({ page: 1, size: pagination.pageSize })"
-          size="large"
-          >查询
-        </a-button>
-        <a-button type="primary" @click="add()" size="large">新增</a-button>
+        <a-form-item>
+          <a-button
+            type="primary"
+            @click="handleQuery({ page: 1, size: pagination.pageSize })"
+            >查询
+          </a-button>
+        </a-form-item>
+        <a-form-item>
+          <a-button type="primary" @click="add()">新增</a-button>
+        </a-form-item>
       </a-form>
     </p>
     <a-table
@@ -77,6 +80,7 @@
 import { defineComponent, onMounted, ref } from "vue";
 import axios from "axios";
 import { message } from "ant-design-vue";
+import { Tool } from "@/util/tool";
 
 export default defineComponent({
   name: "AdminEbook",
@@ -216,7 +220,9 @@ export default defineComponent({
     // 编辑
     const edit = (record: recordType) => {
       modalVisible.value = true;
-      ebook.value = record;
+      // 将表单每行的数据复制传给ebook, 这样在编辑没保存之前,这不会实时修改页面的
+      // 这个是利用JSON.parse(JSON.stringify)深拷贝对象的原来
+      ebook.value = Tool.copy(record);
     };
 
     // 新增
