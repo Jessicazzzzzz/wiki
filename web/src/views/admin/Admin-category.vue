@@ -10,30 +10,19 @@
     <p>
       <a-form layout="inline" :model="param">
         <a-form-item>
-          <a-input
-            v-model:value="param.name"
-            placeholder="名称"
-            @press-enter="handleQuery({ page: 1, size: pagination.pageSize })"
-          ></a-input>
-        </a-form-item>
-        <a-form-item>
-          <a-button
-            type="primary"
-            @click="handleQuery({ page: 1, size: pagination.pageSize })"
-            >查询
-          </a-button>
+          <a-button type="primary" @click="handleQuery()">查询</a-button>
         </a-form-item>
         <a-form-item>
           <a-button type="primary" @click="add()">新增</a-button>
         </a-form-item>
       </a-form>
     </p>
+    <!--     添加:pagination 不让页面分页显示,记得加冒号-->
     <a-table
       :columns="columns"
       :data-source="categorys"
-      :pagination="pagination"
       :loading="loading"
-      @change="handleTableChange"
+      :pagination="false"
     >
       <template #cover="{ text: cover }">
         <img v-if="cover" :src="cover" alt="avatar" />
@@ -84,13 +73,7 @@ export default defineComponent({
   name: "AdminCategory",
   setup() {
     const categorys = ref();
-    //current 当前的页数
-    //pageSize 每页的个数
-    const pagination = ref({
-      current: 1,
-      pageSize: 3,
-      total: 0,
-    });
+
     const loading = ref(false);
     const columns = [
       {
@@ -116,29 +99,18 @@ export default defineComponent({
     // axios 的请求写法是固定的,需要带参数,就通过对象的形式,包裹到params中去的
     //  因为参数可能会很多,所以我们就结构p 中一部分的参数
     // 查询传入的参数是: 从哪一页开始查,每页是多少个
-    const handleQuery = (p: any) => {
+    const handleQuery = () => {
       loading.value = true;
-      axios
-        .get("/category/list", {
-          params: {
-            page: p.page,
-            size: p.size,
-            name: param.value.name,
-          },
-        })
-        .then((response) => {
-          loading.value = false;
-          const data = response.data;
-          // 查询对page 和size 进行数据校验
-          if (data.success) {
-            categorys.value = data.content.list;
-            // 重置分页按钮
-            pagination.value.current = p.page;
-            pagination.value.total = data.content.total;
-          } else {
-            message.error(data.message);
-          }
-        });
+      axios.get("/category/all").then((response) => {
+        loading.value = false;
+        const data = response.data;
+        // 查询对page 和size 进行数据校验
+        if (data.success) {
+          categorys.value = data.content;
+        } else {
+          message.error(data.message);
+        }
+      });
     };
 
     /**
@@ -146,15 +118,11 @@ export default defineComponent({
      */
     const handleTableChange = (pagitation: any) => {
       console.log("自带的分页参数都有什么嘛" + pagitation);
-      handleQuery({
-        page: pagitation.current,
-        size: pagitation.pageSize,
-      });
+      handleQuery();
     };
     // page ,size 是跟后端的属性相对应的
-    // pagination 中有自己的pageSize 的属性
     onMounted(() => {
-      handleQuery({ page: 1, size: pagination.value.pageSize });
+      handleQuery();
     });
 
     // 表单-----
@@ -183,10 +151,7 @@ export default defineComponent({
           modalVisible.value = false;
 
           // 重新加载列表
-          handleQuery({
-            page: pagination.value.current,
-            size: pagination.value.pageSize,
-          });
+          handleQuery();
         } else {
           message.error(data.message);
         }
@@ -216,10 +181,7 @@ export default defineComponent({
         const data = response.data;
         if (data.success) {
           //重新加载列表
-          handleQuery({
-            page: pagination.value.current,
-            size: pagination.value.pageSize,
-          });
+          handleQuery();
         }
       });
     };
@@ -229,7 +191,7 @@ export default defineComponent({
 
     return {
       categorys,
-      pagination,
+
       columns,
       loading,
       handleTableChange,

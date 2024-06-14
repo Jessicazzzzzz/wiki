@@ -2,14 +2,15 @@ package com.example.springwiki.controller;
 
 import com.example.springwiki.req.CategoryQueryReq;
 import com.example.springwiki.req.CategorySaveReq;
-import com.example.springwiki.resp.CommonResp;
 import com.example.springwiki.resp.CategoryQueryResp;
+import com.example.springwiki.resp.CommonResp;
 import com.example.springwiki.resp.PageResp;
 import com.example.springwiki.service.CategoryService;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
 import javax.validation.Valid;
+import java.util.List;
 
 /**
  * @author jessica~
@@ -32,6 +33,14 @@ public class CategoryController {
     public CommonResp list(@Valid CategoryQueryReq req) {
         CommonResp<PageResp<CategoryQueryResp>> response = new CommonResp<>();
         PageResp<CategoryQueryResp> list = categoryService.list(req);
+        response.setContent(list);
+        return response;
+    }
+
+    @GetMapping("/all")
+    public CommonResp all() {
+        CommonResp<List<CategoryQueryResp>> response = new CommonResp<>();
+        List<CategoryQueryResp> list = categoryService.all();
         response.setContent(list);
         return response;
     }

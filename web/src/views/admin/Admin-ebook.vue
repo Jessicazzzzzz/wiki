@@ -16,6 +16,7 @@
           <a-button
             type="primary"
             @click="handleQuery({ page: 1, size: pagination.pageSize })"
+            @press-enter="handleQuery({ page: 1, size: pagination.pageSize })"
             >查询
           </a-button>
         </a-form-item>

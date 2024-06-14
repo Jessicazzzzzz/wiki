@@ -33,6 +33,7 @@ public class CategoryService {
 
     public PageResp<CategoryQueryResp> list(CategoryQueryReq req) {
         CategoryExample categoryExample = new CategoryExample();
+        categoryExample.setOrderByClause("sort asc"); //按照升序排序
         CategoryExample.Criteria criteria = categoryExample.createCriteria();
 //       动态添加sql,动态的按照来名字来查询
         if (!ObjectUtils.isEmpty(req.getName())) {
@@ -91,5 +92,26 @@ public class CategoryService {
      */
     public void delete(Long id) {
         categoryMapper.deleteByPrimaryKey(id);
+    }
+
+    /**
+     * 查询所有数据
+     *
+     * @param req
+     * @return
+     */
+    public List<CategoryQueryResp> all() {
+        CategoryExample categoryExample = new CategoryExample();
+        categoryExample.setOrderByClause("sort asc"); //按照升序排序
+        // 查询条件
+        CategoryExample.Criteria criteria = categoryExample.createCriteria();
+//
+        List<Category> categoryList = categoryMapper.selectByExample(categoryExample);
+
+        // 尽量不要返回实体类
+        // 列表复制
+        List<CategoryQueryResp> respList = CopyUtil.copyList(categoryList, CategoryQueryResp.class);
+
+        return respList;
     }
 }
