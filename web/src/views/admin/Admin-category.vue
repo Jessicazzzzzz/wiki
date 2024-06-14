@@ -58,7 +58,16 @@
         <a-input v-model:value="category.sort" />
       </a-form-item>
       <a-form-item label="父分类">
-        <a-input v-model:value="category.parent" />
+        <a-select ref="select" v-model:value="category.parent">
+          <a-select-option value="0">无</a-select-option>
+          <a-select-option
+            :value="c.id"
+            v-for="c in level1"
+            :key="c.id"
+            :disabled="category.id === c.id"
+            >{{ c.name }}
+          </a-select-option>
+        </a-select>
       </a-form-item>
     </a-form>
   </a-modal>
@@ -145,6 +154,7 @@ export default defineComponent({
       name: string;
       sort: number;
       parent: number;
+      id: number | null | undefined;
     }
 
     //获取每一列的属性
@@ -152,6 +162,7 @@ export default defineComponent({
       name: "",
       sort: 0,
       parent: 0,
+      id: undefined,
     });
     const modalVisible = ref(false);
     const modalLoading = ref(false);
@@ -187,6 +198,7 @@ export default defineComponent({
         name: "",
         sort: 0,
         parent: 0,
+        id: null,
       };
     };
 

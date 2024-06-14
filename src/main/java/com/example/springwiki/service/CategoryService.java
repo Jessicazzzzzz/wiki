@@ -97,7 +97,6 @@ public class CategoryService {
     /**
      * 查询所有数据
      *
-     * @param req
      * @return
      */
     public List<CategoryQueryResp> all() {
