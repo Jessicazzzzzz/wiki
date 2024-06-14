@@ -20,7 +20,7 @@
     <!--     添加:pagination 不让页面分页显示,记得加冒号-->
     <a-table
       :columns="columns"
-      :data-source="categorys"
+      :data-source="level1"
       :loading="loading"
       :pagination="false"
     >
@@ -73,7 +73,18 @@ export default defineComponent({
   name: "AdminCategory",
   setup() {
     const categorys = ref();
-
+    /**
+     * [{id:"",
+     * parent:"",
+     * name:"",
+     * children:[{
+     *   id:"",
+     *   parent:"",
+     *   name:""
+     * }]
+     * }]
+     */
+    const level1 = ref();
     const loading = ref(false);
     const columns = [
       {
@@ -107,6 +118,10 @@ export default defineComponent({
         // 查询对page 和size 进行数据校验
         if (data.success) {
           categorys.value = data.content;
+          // console.log("categorys.value", categorys.value);
+          level1.value = [];
+          level1.value = Tool.array2Tree(categorys.value, 0);
+          // console.log("level", level1.value);
         } else {
           message.error(data.message);
         }
@@ -191,7 +206,7 @@ export default defineComponent({
 
     return {
       categorys,
-
+      level1,
       columns,
       loading,
       handleTableChange,
