@@ -1,43 +1,26 @@
 <template>
   <a-layout>
     <a-layout-sider width="200" style="background: #fff">
-      <a-menu mode="inline" :style="{ height: '100%', borderRight: 0 }">
+      <a-menu
+        mode="inline"
+        :style="{ height: '100%', borderRight: 0 }"
+        @click="handleClick"
+      >
         <!--        v-model:openKeys="openKeys"-->
-        <a-sub-menu key="sub1">
-          <template #title>
-            <span>
-              <user-outlined />
-              subnav 11111
-            </span>
+        <a-menu-item key="welcome">
+          <router-link to="/">
+            <Mail-outlined />
+            欢迎
+          </router-link>
+        </a-menu-item>
+        <a-sub-menu v-for="item in level1" :key="item.id">
+          <template v-slot:title>
+            <span><user-outlined />{{ item.name }}</span>
           </template>
-          <a-menu-item key="1">option1</a-menu-item>
-          <a-menu-item key="2">option2</a-menu-item>
-          <a-menu-item key="3">option3</a-menu-item>
-          <a-menu-item key="4">option4</a-menu-item>
-        </a-sub-menu>
-        <a-sub-menu key="sub2">
-          <template #title>
-            <span>
-              <laptop-outlined />
-              subnav 2
-            </span>
-          </template>
-          <a-menu-item key="5">option5</a-menu-item>
-          <a-menu-item key="6">option6</a-menu-item>
-          <a-menu-item key="7">option7</a-menu-item>
-          <a-menu-item key="8">option8</a-menu-item>
-        </a-sub-menu>
-        <a-sub-menu key="sub3">
-          <template #title>
-            <span>
-              <notification-outlined />
-              subnav 3
-            </span>
-          </template>
-          <a-menu-item key="9">option9</a-menu-item>
-          <a-menu-item key="10">option10</a-menu-item>
-          <a-menu-item key="11">option11</a-menu-item>
-          <a-menu-item key="12">option12</a-menu-item>
+          <a-menu-item v-for="child in item.children" :key="child.id">
+            <MailOutlined />
+            <span>{{ child.name }}</span>
+          </a-menu-item>
         </a-sub-menu>
       </a-menu>
     </a-layout-sider>
@@ -87,6 +70,8 @@ import {
   LikeOutlined,
   MessageOutlined,
 } from "@ant-design/icons-vue";
+import { message } from "ant-design-vue";
+import { Tool } from "@/util/tool";
 
 const listData: Record<string, string>[] = [];
 
@@ -109,8 +94,28 @@ export default defineComponent({
     const ebooks = ref();
     // const ebooks1 = reactive({ books: [] });
 
+    let categorys: any;
+    const level1 = ref();
+
+    const handleQueryCategory = () => {
+      axios.get("/category/all").then((response) => {
+        const data = response.data;
+        if (!data.success) return message.error(data.message);
+
+        categorys = data.content;
+        console.log("原始数组", categorys);
+        level1.value = [];
+        level1.value = Tool.array2Tree(categorys, 0);
+        console.log("树形数组", level1.value);
+        // 加载完分类后，再加载电子书，否则如果分类树加载很慢，则电子书渲染会报错
+      });
+    };
+    const handleClick = () => {
+      console.log("点击菜单");
+    };
+
     onMounted(() => {
-      console.log("onMounted909");
+      handleQueryCategory();
       axios
         .get("/ebook/list", {
           params: {
@@ -126,6 +131,8 @@ export default defineComponent({
         });
     });
     return {
+      handleClick,
+      level1,
       ebooks,
       // book: toRef(ebooks1, "books"),
       listData,
