@@ -186,7 +186,7 @@ export default defineComponent({
     // pagination 中有自己的pageSize 的属性
     onMounted(() => {
       handleQueryCategory();
-      handleQuery({ page: 1, size: pagination.value.pageSize });
+      // handleQuery({ page: 1, size: pagination.value.pageSize });
     });
 
     //获取级联分类
@@ -203,6 +203,8 @@ export default defineComponent({
         level1.value = Tool.array2Tree(categorys, 0);
         console.log("树形数组", level1.value);
         // 加载完分类后，再加载电子书，否则如果分类树加载很慢，则电子书渲染会报错
+        // 因为电子书需要用到categorys.getCategoryName,
+        // 而它如果很慢,那么这个线程挂起,而去执行handleQuery的时候,就无法访问到categorys,就会报错
         handleQuery({
           page: 1,
           size: pagination.value.pageSize,
@@ -212,7 +214,7 @@ export default defineComponent({
 
     const getCategoryName = (cid: number) => {
       let res = "";
-      if (!categorys) return;
+      // if (!categorys) return;
       categorys.forEach((item: any) => {
         if (item.id == cid) res = item.name;
         // console.log("res", res);
