@@ -65,11 +65,12 @@
       <a-form-item label="名称">
         <a-input v-model:value="ebook.name" />
       </a-form-item>
-      <a-form-item label="分类1">
-        <a-input v-model:value="ebook.category1Id" />
-      </a-form-item>
-      <a-form-item label="分类2">
-        <a-input v-model:value="ebook.category2Id" />
+      <a-form-item label="分类">
+        <a-cascader
+          v-model:value="categoryIds"
+          :options="level1"
+          :field-names="{ label: 'name', value: 'id', children: 'children' }"
+        />
       </a-form-item>
       <a-form-item label="描述">
         <a-input v-model:value="ebook.description" type="textarea" />
@@ -176,8 +177,25 @@ export default defineComponent({
     // page ,size 是跟后端的属性相对应的
     // pagination 中有自己的pageSize 的属性
     onMounted(() => {
+      handleQueryCategory();
       handleQuery({ page: 1, size: pagination.value.pageSize });
     });
+
+    // 获取级联分类
+    const handleQueryCategory = () => {
+      loading.value = true;
+      axios.get("/category/all").then((response) => {
+        loading.value = false;
+        const data = response.data;
+        if (!data.success) return message.error(data.message);
+
+        const categorys = data.content;
+        console.log("原始数组", categorys);
+        level1.value = [];
+        level1.value = Tool.array2Tree(categorys, 0);
+        console.log("树形数组", level1.value);
+      });
+    };
 
     // 表单-----
     interface recordType {
@@ -187,6 +205,10 @@ export default defineComponent({
       category2Id: number | null | undefined;
       description: string | null | undefined;
     }
+
+    // 绑定在级联下拉菜单下的属性
+    //[100,101] -> 前端开发/vue
+    const categoryIds = ref();
 
     //获取每一列的属性
     const ebook = ref<recordType>({
@@ -201,6 +223,8 @@ export default defineComponent({
     // 编辑修改表单数据
     const handleLoading = () => {
       modalLoading.value = true;
+      ebook.value.category1Id = categoryIds.value[0];
+      ebook.value.category2Id = categoryIds.value[1];
       axios.post("/ebook/save", ebook.value).then((response) => {
         modalLoading.value = false; // 后端只要返回数据,我们就去掉loading 效果
         const data = response.data;
@@ -224,6 +248,7 @@ export default defineComponent({
       // 将表单每行的数据复制传给ebook, 这样在编辑没保存之前,这不会实时修改页面的
       // 这个是利用JSON.parse(JSON.stringify)深拷贝对象的原来
       ebook.value = Tool.copy(record);
+      categoryIds.value = [ebook.value.category1Id, ebook.value.category2Id];
     };
 
     // 新增
@@ -238,6 +263,9 @@ export default defineComponent({
       };
     };
 
+    const level1 = ref();
+
+    //
     //删除
     const handleDelete = (id: number) => {
       axios.delete("ebook/delete/" + id).then((response) => {
@@ -270,6 +298,8 @@ export default defineComponent({
       ebook,
       handleDelete,
       param,
+      categoryIds,
+      level1,
     };
   },
 });
