@@ -8,10 +8,8 @@
       >
         <!--        v-model:openKeys="openKeys"-->
         <a-menu-item key="welcome">
-          <router-link to="/">
-            <Mail-outlined />
-            欢迎
-          </router-link>
+          <Mail-outlined />
+          欢迎
         </a-menu-item>
         <a-sub-menu v-for="item in level1" :key="item.id">
           <template v-slot:title>
@@ -32,7 +30,11 @@
         minHeight: '280px',
       }"
     >
+      <div class="welcome" v-show="isShowWelcome">
+        <h1>欢迎使用jess知识库</h1>
+      </div>
       <a-list
+        v-show="!isShowWelcome"
         item-layout="vertical"
         size="large"
         :data-source="ebooks"
@@ -93,6 +95,7 @@ export default defineComponent({
     console.log("setup");
     const ebooks = ref();
     // const ebooks1 = reactive({ books: [] });
+    const isShowWelcome = ref(true);
 
     let categorys: any;
     const level1 = ref();
@@ -110,8 +113,9 @@ export default defineComponent({
         // 加载完分类后，再加载电子书，否则如果分类树加载很慢，则电子书渲染会报错
       });
     };
-    const handleClick = () => {
-      console.log("点击菜单");
+    const handleClick = (value: any) => {
+      // console.log("点击菜单", value);
+      isShowWelcome.value = value.key === "welcome";
     };
 
     onMounted(() => {
@@ -131,6 +135,7 @@ export default defineComponent({
         });
     });
     return {
+      isShowWelcome,
       handleClick,
       level1,
       ebooks,
