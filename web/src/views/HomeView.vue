@@ -99,7 +99,7 @@ export default defineComponent({
 
     let categorys: any;
     const level1 = ref();
-
+    let categoryId2 = 0;
     const handleQueryCategory = () => {
       axios.get("/category/all").then((response) => {
         const data = response.data;
@@ -113,18 +113,13 @@ export default defineComponent({
         // 加载完分类后，再加载电子书，否则如果分类树加载很慢，则电子书渲染会报错
       });
     };
-    const handleClick = (value: any) => {
-      // console.log("点击菜单", value);
-      isShowWelcome.value = value.key === "welcome";
-    };
-
-    onMounted(() => {
-      handleQueryCategory();
+    const handleQueryEbook = () => {
       axios
         .get("/ebook/list", {
           params: {
             page: 1,
             size: 1000,
+            categoryId2: categoryId2,
           },
         })
         .then((response) => {
@@ -133,6 +128,22 @@ export default defineComponent({
           // ebooks1.books = data.content;
           // console.log(response);
         });
+    };
+    const handleClick = (value: any) => {
+      // console.log("点击菜单", value);
+      // isShowWelcome.value = value.key === "welcome";
+      if (value.key === "welcome") {
+        isShowWelcome.value = true;
+      } else {
+        isShowWelcome.value = false;
+        categoryId2 = value.key;
+        handleQueryEbook();
+      }
+    };
+
+    onMounted(() => {
+      handleQueryCategory();
+      // handleQueryEbook();
     });
     return {
       isShowWelcome,

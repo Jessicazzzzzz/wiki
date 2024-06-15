@@ -2,6 +2,7 @@ package com.example.springwiki.req;
 
 public class EbookQueryReq extends PageReq {
     private Long id;
+    private Long categoryId2;
 
     private String name;
 
@@ -22,16 +23,21 @@ public class EbookQueryReq extends PageReq {
         this.name = name;
     }
 
-
     @Override
     public String toString() {
-
-        String sb = getClass().getSimpleName() +
-                " [" +
-                "Hash = " + hashCode() +
+        return "EbookQueryReq{" +
+                "categoryId2=" + categoryId2 +
                 ", id=" + id +
-                ", name=" + name +
-                "]";
-        return sb;
+                ", name='" + name + '\'' +
+                "} " + super.toString();
     }
+
+    public Long getCategoryId2() {
+        return categoryId2;
+    }
+
+    public void setCategoryId2(Long categoryId2) {
+        this.categoryId2 = categoryId2;
+    }
+
 }
