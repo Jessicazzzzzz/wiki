@@ -35,7 +35,13 @@
       <template #cover="{ text: cover }">
         <img v-if="cover" :src="cover" alt="avatar" />
       </template>
-
+      <template v-slot:category="{ text, record }">
+        <span
+          >{{ getCategoryName(record.category1Id) }}/{{
+            getCategoryName(record.category2Id)
+          }}</span
+        >
+      </template>
       <template v-slot:action="{ text, record }">
         <a-space size="small">
           <a-button type="primary" @click="edit(record)">编辑</a-button>
@@ -66,6 +72,7 @@
         <a-input v-model:value="ebook.name" />
       </a-form-item>
       <a-form-item label="分类">
+        <!--        展示是label  对应的value  ,这些都是 level1中的数据属性-->
         <a-cascader
           v-model:value="categoryIds"
           :options="level1"
@@ -87,6 +94,7 @@ import { Tool } from "@/util/tool";
 export default defineComponent({
   name: "AdminEbook",
   setup() {
+    let categorys: any;
     const ebooks = ref();
     //current 当前的页数
     //pageSize 每页的个数
@@ -106,18 +114,18 @@ export default defineComponent({
         title: "名称",
         dataIndex: "name",
       },
-      {
-        title: "分类1",
-        dataIndex: "category1Id",
-      },
-      {
-        title: "分类2",
-        dataIndex: "category2Id",
-      },
       // {
-      //   title: "分类",
-      //   slots: { customRender: "category" },
+      //   title: "分类1",
+      //   dataIndex: "category1Id",
       // },
+      // {
+      //   title: "分类2",
+      //   dataIndex: "category2Id",
+      // },
+      {
+        title: "分类",
+        slots: { customRender: "category" },
+      },
       {
         title: "文档数",
         dataIndex: "docCount",
@@ -181,7 +189,7 @@ export default defineComponent({
       handleQuery({ page: 1, size: pagination.value.pageSize });
     });
 
-    // 获取级联分类
+    //获取级联分类
     const handleQueryCategory = () => {
       loading.value = true;
       axios.get("/category/all").then((response) => {
@@ -189,12 +197,27 @@ export default defineComponent({
         const data = response.data;
         if (!data.success) return message.error(data.message);
 
-        const categorys = data.content;
+        categorys = data.content;
         console.log("原始数组", categorys);
         level1.value = [];
         level1.value = Tool.array2Tree(categorys, 0);
         console.log("树形数组", level1.value);
+        // 加载完分类后，再加载电子书，否则如果分类树加载很慢，则电子书渲染会报错
+        handleQuery({
+          page: 1,
+          size: pagination.value.pageSize,
+        });
       });
+    };
+
+    const getCategoryName = (cid: number) => {
+      let res = "";
+      if (!categorys) return;
+      categorys.forEach((item: any) => {
+        if (item.id == cid) res = item.name;
+        // console.log("res", res);
+      });
+      return res;
     };
 
     // 表单-----
@@ -248,6 +271,7 @@ export default defineComponent({
       // 将表单每行的数据复制传给ebook, 这样在编辑没保存之前,这不会实时修改页面的
       // 这个是利用JSON.parse(JSON.stringify)深拷贝对象的原来
       ebook.value = Tool.copy(record);
+      // 获取分类信息,并赋值给categoryIds
       categoryIds.value = [ebook.value.category1Id, ebook.value.category2Id];
     };
 
@@ -300,6 +324,7 @@ export default defineComponent({
       param,
       categoryIds,
       level1,
+      getCategoryName,
     };
   },
 });
