@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
 import javax.validation.Valid;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -58,16 +59,18 @@ public class DocController {
         return response;
     }
 
+//    "/delete/{id}" 中的id 会自动映射到@PathVariable Long id中的id 中去
+
+
     /**
-     * "/delete/{id}" 中的id 会自动映射到@PathVariable Long id中的id 中去
-     *
      * @param id
      * @return
      */
-    @DeleteMapping("/delete/{id}")
-    public CommonResp delete(@PathVariable Long id) {
+    @DeleteMapping("/delete/{idsStr}")
+    public CommonResp delete(@PathVariable String idsStr) {
         CommonResp response = new CommonResp<>();
-        docService.delete(id);
+        List<String> lists = Arrays.asList(idsStr.split(","));
+        docService.delete(lists);
         return response;
     }
 

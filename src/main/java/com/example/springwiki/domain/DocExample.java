@@ -144,7 +144,7 @@ public class DocExample {
             return (Criteria) this;
         }
 
-        public Criteria andIdIn(List<Long> values) {
+        public Criteria andIdIn(List<String> values) {
             addCriterion("id in", values, "id");
             return (Criteria) this;
         }
@@ -542,7 +542,7 @@ public class DocExample {
     }
 
     public static class Criterion {
-        private String condition;
+        private final String condition;
 
         private Object value;
 
@@ -556,7 +556,7 @@ public class DocExample {
 
         private boolean listValue;
 
-        private String typeHandler;
+        private final String typeHandler;
 
         public String getCondition() {
             return condition;

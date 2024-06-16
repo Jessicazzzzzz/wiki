@@ -94,6 +94,15 @@ public class DocService {
         docMapper.deleteByPrimaryKey(id);
     }
 
+    public void delete(List<String> ids) {
+        // 根据条件来删除
+        DocExample docExample = new DocExample();
+        DocExample.Criteria criteria = docExample.createCriteria();
+        // 如果id 在某个范围就删除
+        criteria.andIdIn(ids);
+        docMapper.deleteByExample(docExample);
+    }
+
     /**
      * 查询所有数据
      *
@@ -113,4 +122,6 @@ public class DocService {
 
         return respList;
     }
+
+
 }
