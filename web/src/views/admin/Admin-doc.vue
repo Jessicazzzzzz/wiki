@@ -54,20 +54,36 @@
       <a-form-item label="名称">
         <a-input v-model:value="doc.name" />
       </a-form-item>
+      <a-form-item label="选择父文档">
+        <a-tree-select
+          v-model:value="doc.parent"
+          show-search
+          style="width: 100%"
+          :dropdown-style="{ maxHeight: '400px', overflow: 'auto' }"
+          placeholder="请选择父文档"
+          allow-clear
+          tree-default-expand-all
+          :tree-data="treeSelectData"
+          tree-node-filter-prop="label"
+          :replaceFields="{ label: 'name', key: 'id', value: 'id' }"
+        >
+        </a-tree-select>
+      </a-form-item>
+
+      <!--      <a-form-item label="父文档">-->
+      <!--        <a-select ref="select" v-model:value="doc.parent">-->
+      <!--          <a-select-option value="0">无</a-select-option>-->
+      <!--          <a-select-option-->
+      <!--            :value="c.id"-->
+      <!--            v-for="c in level1"-->
+      <!--            :key="c.id"-->
+      <!--            :disabled="doc.id === c.id"-->
+      <!--            >{{ c.name }}-->
+      <!--          </a-select-option>-->
+      <!--        </a-select>-->
+      <!--      </a-form-item>-->
       <a-form-item label="顺序">
         <a-input v-model:value="doc.sort" />
-      </a-form-item>
-      <a-form-item label="父分类">
-        <a-select ref="select" v-model:value="doc.parent">
-          <a-select-option value="0">无</a-select-option>
-          <a-select-option
-            :value="c.id"
-            v-for="c in level1"
-            :key="c.id"
-            :disabled="doc.id === c.id"
-            >{{ c.name }}
-          </a-select-option>
-        </a-select>
       </a-form-item>
     </a-form>
   </a-modal>
@@ -93,6 +109,9 @@ export default defineComponent({
      * }]
      * }]
      */
+    // 因为要添加父节点中无的数据,所以应该将level1中的数据复制到新的变量中去
+    const treeSelectData = ref();
+    treeSelectData.value = [];
     const level1 = ref();
     const loading = ref(false);
     const columns = [
@@ -183,12 +202,47 @@ export default defineComponent({
         }
       });
     };
+
+    /**
+     * 将某节点及其子孙节点全部置为disabled
+     */
+    const setDisable = (treeSelectData: any, id: any) => {
+      // console.log(treeSelectData, id);
+      // 遍历数组，即遍历某一层节点
+      for (let i = 0; i < treeSelectData.length; i++) {
+        const node = treeSelectData[i];
+        if (node.id === id) {
+          // 如果当前节点就是目标节点
+          console.log("disabled", node);
+          // 将目标节点设置为disabled
+          node.disabled = true;
+
+          // 遍历所有子节点，将所有子节点全部都加上disabled
+          const children = node.children;
+          if (Tool.isNotEmpty(children)) {
+            for (let j = 0; j < children.length; j++) {
+              setDisable(children, children[j].id);
+            }
+          }
+        } else {
+          // 如果当前节点不是目标节点，则到其子节点再找找看。
+          const children = node.children;
+          if (Tool.isNotEmpty(children)) {
+            setDisable(children, id);
+          }
+        }
+      }
+    };
     // 编辑
     const edit = (record: recordType) => {
       modalVisible.value = true;
       // 将表单每行的数据复制传给doc, 这样在编辑没保存之前,这不会实时修改页面的
       // 这个是利用JSON.parse(JSON.stringify)深拷贝对象的原来
       doc.value = Tool.copy(record);
+      treeSelectData.value = Tool.copy(level1.value);
+      // 将当前节点以及它的子孙节点变成disable
+      setDisable(treeSelectData.value, record.id);
+      treeSelectData.value.unshift({ id: 0, name: "无" });
     };
 
     // 新增
@@ -200,6 +254,8 @@ export default defineComponent({
         parent: 0,
         id: null,
       };
+      treeSelectData.value = Tool.copy(level1.value);
+      treeSelectData.value.unshift({ id: 0, name: "无" });
     };
 
     //删除
@@ -231,6 +287,7 @@ export default defineComponent({
       doc,
       handleDelete,
       param,
+      treeSelectData,
     };
   },
 });
