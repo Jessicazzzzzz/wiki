@@ -93,6 +93,7 @@ import { defineComponent, onMounted, ref } from "vue";
 import axios from "axios";
 import { message } from "ant-design-vue";
 import { Tool } from "@/util/tool";
+import { LocationQueryValue, useRoute } from "vue-router";
 
 export default defineComponent({
   name: "AdminDoc",
@@ -112,6 +113,10 @@ export default defineComponent({
     // 因为要添加父节点中无的数据,所以应该将level1中的数据复制到新的变量中去
     const treeSelectData = ref();
     treeSelectData.value = [];
+    // 获取路由路径
+    // path ,query, param,fullpath,name ,meta
+    const route = useRoute();
+
     const level1 = ref();
     const loading = ref(false);
     const columns = [
@@ -174,6 +179,7 @@ export default defineComponent({
       sort: number;
       parent: number;
       id: number | null | undefined;
+      ebookId: LocationQueryValue | LocationQueryValue[];
     }
 
     //获取每一列的属性
@@ -182,6 +188,7 @@ export default defineComponent({
       sort: 0,
       parent: 0,
       id: undefined,
+      ebookId: "",
     });
     const modalVisible = ref(false);
     const modalLoading = ref(false);
@@ -253,6 +260,7 @@ export default defineComponent({
         sort: 0,
         parent: 0,
         id: null,
+        ebookId: route.query.ebookId,
       };
       treeSelectData.value = Tool.copy(level1.value);
       treeSelectData.value.unshift({ id: 0, name: "无" });
