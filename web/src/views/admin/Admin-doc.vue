@@ -54,18 +54,18 @@
       <a-form-item label="名称">
         <a-input v-model:value="doc.name" />
       </a-form-item>
+
       <a-form-item label="选择父文档">
         <a-tree-select
           v-model:value="doc.parent"
-          show-search
           style="width: 100%"
           :dropdown-style="{ maxHeight: '400px', overflow: 'auto' }"
           placeholder="请选择父文档"
           allow-clear
           tree-default-expand-all
-          :tree-data="treeSelectData"
+          :tree-data="treeData"
           tree-node-filter-prop="label"
-          :replaceFields="{ label: 'name', key: 'id', value: 'id' }"
+          :fieldNames="{ label: 'name', key: 'id', value: 'id' }"
         >
         </a-tree-select>
       </a-form-item>
@@ -89,16 +89,19 @@
   </a-modal>
 </template>
 <script lang="ts">
-import { defineComponent, onMounted, ref } from "vue";
+import { createVNode, defineComponent, onMounted, ref } from "vue";
 import axios from "axios";
-import { message } from "ant-design-vue";
+import { message, Modal, TreeSelectProps } from "ant-design-vue";
 import { Tool } from "@/util/tool";
 import { LocationQueryValue, useRoute } from "vue-router";
+import { ExclamationCircleOutlined } from "@ant-design/icons-vue";
 
 export default defineComponent({
   name: "AdminDoc",
+
   setup() {
     const docs = ref();
+
     /**
      * [{id:"",
      * parent:"",
@@ -111,14 +114,16 @@ export default defineComponent({
      * }]
      */
     // 因为要添加父节点中无的数据,所以应该将level1中的数据复制到新的变量中去
-    const treeSelectData = ref();
-    treeSelectData.value = [];
+    const treeData = ref<TreeSelectProps["treeData"]>();
+    // treeData.value = [];
+
     // 获取路由路径
     // path ,query, param,fullpath,name ,meta
     const route = useRoute();
 
     const level1 = ref();
     const loading = ref(false);
+
     const columns = [
       {
         title: "名称",
@@ -139,6 +144,7 @@ export default defineComponent({
         slots: { customRender: "action" },
       },
     ];
+
     // p 是前端的url 带的请求参数,
     // axios 的请求写法是固定的,需要带参数,就通过对象的形式,包裹到params中去的
     //  因为参数可能会很多,所以我们就结构p 中一部分的参数
@@ -151,7 +157,6 @@ export default defineComponent({
         // 查询对page 和size 进行数据校验
         if (data.success) {
           docs.value = data.content;
-          // console.log("docs.value", docs.value);
           level1.value = [];
           level1.value = Tool.array2Tree(docs.value, 0);
           // console.log("level", level1.value);
@@ -174,22 +179,10 @@ export default defineComponent({
     });
 
     // 表单-----
-    interface recordType {
-      name: string;
-      sort: number;
-      parent: number;
-      id: number | null | undefined;
-      ebookId: LocationQueryValue | LocationQueryValue[];
-    }
 
     //获取每一列的属性
-    const doc = ref<recordType>({
-      name: "",
-      sort: 0,
-      parent: 0,
-      id: undefined,
-      ebookId: "",
-    });
+    const doc = ref();
+
     const modalVisible = ref(false);
     const modalLoading = ref(false);
     // 编辑修改表单数据
@@ -241,6 +234,7 @@ export default defineComponent({
       }
     };
     const ids: Array<string> = [];
+    const deleteNames: Array<string> = [];
     const getDeleteIds = (treeSelectData: any, id: any) => {
       // console.log(treeSelectData, id);
       // 遍历数组，即遍历某一层节点
@@ -251,6 +245,7 @@ export default defineComponent({
 
           // 将目标节点ID 放入数组中
           ids.push(node.id);
+          deleteNames.push(node.name);
 
           // 遍历所有子节点，将所有子节点全部都放入ids
           const children = node.children;
@@ -269,42 +264,71 @@ export default defineComponent({
       }
     };
     // 编辑
-    const edit = (record: recordType) => {
+    const edit = (record: any) => {
       modalVisible.value = true;
       // 将表单每行的数据复制传给doc, 这样在编辑没保存之前,这不会实时修改页面的
       // 这个是利用JSON.parse(JSON.stringify)深拷贝对象的原来
-      doc.value = Tool.copy(record);
-      treeSelectData.value = Tool.copy(level1.value);
+      console.log("record", record);
+      let d = Tool.copy(record);
+      d.parent = { parent: record.parent };
+
+      doc.value = Tool.copy(d);
+      // doc.value?.parent  = doc
+      console.log("doc value", doc.value);
+      let t = Tool.copy(level1.value) || [];
+      treeData.value = Tool.copy(level1.value) || [];
+
+      console.log("tree value", treeData.value);
       // 将当前节点以及它的子孙节点变成disable
-      setDisable(treeSelectData.value, record.id);
-      treeSelectData.value.unshift({ id: 0, name: "无" });
+      setDisable(treeData.value, record.id);
+      treeData!.value!.unshift({ id: 0, name: "无" });
     };
 
     // 新增
     const add = () => {
       modalVisible.value = true;
       doc.value = {
-        name: "",
-        sort: 0,
-        parent: 0,
-        id: null,
         ebookId: route.query.ebookId,
       };
-      treeSelectData.value = Tool.copy(level1.value);
-      treeSelectData.value.unshift({ id: 0, name: "无" });
+      treeData.value = Tool.copy(level1.value);
+      treeData!.value!.unshift({ id: 0, name: "无" });
     };
 
     //删除
+
     const handleDelete = (id: number) => {
+      // console.log(ids);
+      // console.log(deleteNames);
+      ids.length = 0;
+      deleteNames.length = 0;
       getDeleteIds(level1.value, id);
-      
-      axios.delete("doc/delete/" + ids.join(",")).then((response) => {
-        const data = response.data;
-        if (data.success) {
-          //重新加载列表
-          handleQuery();
-        }
+      Modal.confirm({
+        title: "重要提醒",
+        icon: createVNode(ExclamationCircleOutlined),
+        content:
+          "将删除：【" +
+          deleteNames.join("，") +
+          "】删除后不可恢复，确认删除？",
+        onOk() {
+          // console.log(ids)
+          axios.delete("/doc/delete/" + ids.join(",")).then((response) => {
+            const data = response.data; // data = commonResp
+            if (data.success) {
+              // 重新加载列表
+              handleQuery();
+            } else {
+              message.error(data.message);
+            }
+          });
+        },
       });
+      // axios.delete("doc/delete/" + ids.join(",")).then((response) => {
+      //   const data = response.data;
+      //   if (data.success) {
+      //     //重新加载列表
+      //     handleQuery();
+      //   }
+      // });
     };
 
     const param = ref();
@@ -325,7 +349,7 @@ export default defineComponent({
       doc,
       handleDelete,
       param,
-      treeSelectData,
+      treeData,
     };
   },
 });
