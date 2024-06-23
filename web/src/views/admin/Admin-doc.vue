@@ -242,15 +242,15 @@ export default defineComponent({
     // 编辑修改表单数据
     // 保存数据,修改富文本
     const handleLoading = () => {
-      modalLoading.value = true;
+      // modalLoading.value = true;
       doc.value.content = editor.txt.html();
       axios.post("/doc/save", doc.value).then((response) => {
         modalLoading.value = false; // 后端只要返回数据,我们就去掉loading 效果
         const data = response.data;
         if (data.success) {
           // 如果返回的值是成功的话,就表示上传成功了
-          modalVisible.value = false;
-
+          // modalVisible.value = false;
+          message.success("保存成功");
           // 重新加载列表
           handleQuery();
         } else {
@@ -321,6 +321,9 @@ export default defineComponent({
     };
     // 编辑
     const edit = (record: any) => {
+      // 需要先清空富文本框
+      // 这样上一次的数据就不会存在了
+      editor.txt.html("");
       modalVisible.value = true;
       // 将表单每行的数据复制传给doc, 这样在编辑没保存之前,这不会实时修改页面的
       // 这个是利用JSON.parse(JSON.stringify)深拷贝对象的原来
@@ -339,6 +342,8 @@ export default defineComponent({
 
     // 新增
     const add = () => {
+      // 也是需要先清空富文本
+      editor.txt.html("");
       modalVisible.value = true;
 
       doc.value = {
