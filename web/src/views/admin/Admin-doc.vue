@@ -7,89 +7,95 @@
       minHeight: '280px',
     }"
   >
-    <p>
-      <a-form layout="inline" :model="param">
-        <a-form-item>
-          <a-button type="primary" @click="handleQuery()">查询</a-button>
-        </a-form-item>
-        <a-form-item>
-          <a-button type="primary" @click="add()">新增</a-button>
-        </a-form-item>
-      </a-form>
-    </p>
-    <!--     添加:pagination 不让页面分页显示,记得加冒号-->
-    <a-table
-      :columns="columns"
-      :data-source="level1"
-      :loading="loading"
-      :pagination="false"
-    >
-      <template #cover="{ text: cover }">
-        <img v-if="cover" :src="cover" alt="avatar" />
-      </template>
-
-      <template v-slot:action="{ text, record }">
-        <a-space size="small">
-          <a-button type="primary" @click="edit(record)">编辑</a-button>
-
-          <a-popconfirm
-            title="删除后不可以恢复,确认删除?"
-            ok-text="Yes"
-            cancel-text="No"
-            @confirm="handleDelete(record.id)"
-          >
-            <a-button type="ghost">删除</a-button>
-          </a-popconfirm>
-        </a-space>
-      </template>
-    </a-table>
-  </a-layout-content>
-  <a-modal
-    v-model:visible="modalVisible"
-    title="表单表单"
-    @ok="handleLoading"
-    :confirm-loading="modalLoading"
-  >
-    <a-form :model="doc" :label-col="{ span: 6 }">
-      <a-form-item label="名称">
-        <a-input v-model:value="doc.name" />
-      </a-form-item>
-
-      <a-form-item label="选择父文档">
-        <a-tree-select
-          v-model:value="doc.parent"
-          style="width: 100%"
-          :dropdown-style="{ maxHeight: '400px', overflow: 'auto' }"
-          placeholder="请选择父文档"
-          allow-clear
-          tree-default-expand-all
-          :tree-data="treeData"
-          tree-node-filter-prop="label"
-          :fieldNames="{ label: 'name', key: 'id', value: 'id' }"
+    <a-row>
+      <a-col :span="8">
+        <p>
+          <a-form layout="inline" :model="param">
+            <a-form-item>
+              <a-button type="primary" @click="handleQuery()">查询</a-button>
+            </a-form-item>
+            <a-form-item>
+              <a-button type="primary" @click="add()">新增</a-button>
+            </a-form-item>
+          </a-form>
+        </p>
+        <!--     添加:pagination 不让页面分页显示,记得加冒号-->
+        <a-table
+          :columns="columns"
+          :data-source="level1"
+          :loading="loading"
+          :pagination="false"
         >
-        </a-tree-select>
-      </a-form-item>
+          <template #cover="{ text: cover }">
+            <img v-if="cover" :src="cover" alt="avatar" />
+          </template>
 
-      <!--      <a-form-item label="父文档">-->
-      <!--        <a-select ref="select" v-model:value="doc.parent">-->
-      <!--          <a-select-option value="0">无</a-select-option>-->
-      <!--          <a-select-option-->
-      <!--            :value="c.id"-->
-      <!--            v-for="c in level1"-->
-      <!--            :key="c.id"-->
-      <!--            :disabled="doc.id === c.id"-->
-      <!--            >{{ c.name }}-->
-      <!--          </a-select-option>-->
-      <!--        </a-select>-->
-      <!--      </a-form-item>-->
-      <a-form-item label="顺序">
-        <a-input v-model:value="doc.sort" />
-      </a-form-item>
-      <a-form-item label="内容">
-        <div id="content"></div>
-      </a-form-item>
-    </a-form>
-  </a-modal>
+          <template v-slot:action="{ text, record }">
+            <a-space size="small">
+              <a-button type="primary" @click="edit(record)">编辑</a-button>
+
+              <a-popconfirm
+                title="删除后不可以恢复,确认删除?"
+                ok-text="Yes"
+                cancel-text="No"
+                @confirm="handleDelete(record.id)"
+              >
+                <a-button type="ghost">删除</a-button>
+              </a-popconfirm>
+            </a-space>
+          </template>
+        </a-table>
+      </a-col>
+      <a-col :span="16">
+        <!--        <a-modal-->
+        <!--            v-model:visible="modalVisible"-->
+        <!--            title="表单表单"-->
+        <!--            @ok="handleLoading"-->
+        <!--            :confirm-loading="modalLoading"-->
+        <!--        >-->
+        <a-form :model="doc" :label-col="{ span: 6 }">
+          <a-form-item label="名称">
+            <a-input v-model:value="doc.name" />
+          </a-form-item>
+
+          <a-form-item label="选择父文档">
+            <a-tree-select
+              v-model:value="doc.parent"
+              style="width: 100%"
+              :dropdown-style="{ maxHeight: '400px', overflow: 'auto' }"
+              placeholder="请选择父文档"
+              allow-clear
+              tree-default-expand-all
+              :tree-data="treeData"
+              tree-node-filter-prop="label"
+              :fieldNames="{ label: 'name', key: 'id', value: 'id' }"
+            >
+            </a-tree-select>
+          </a-form-item>
+
+          <!--      <a-form-item label="父文档">-->
+          <!--        <a-select ref="select" v-model:value="doc.parent">-->
+          <!--          <a-select-option value="0">无</a-select-option>-->
+          <!--          <a-select-option-->
+          <!--            :value="c.id"-->
+          <!--            v-for="c in level1"-->
+          <!--            :key="c.id"-->
+          <!--            :disabled="doc.id === c.id"-->
+          <!--            >{{ c.name }}-->
+          <!--          </a-select-option>-->
+          <!--        </a-select>-->
+          <!--      </a-form-item>-->
+          <a-form-item label="顺序">
+            <a-input v-model:value="doc.sort" />
+          </a-form-item>
+          <a-form-item label="内容">
+            <div id="content"></div>
+          </a-form-item>
+        </a-form>
+        <!--        </a-modal>-->
+      </a-col>
+    </a-row>
+  </a-layout-content>
 </template>
 <script lang="ts">
 import { createVNode, defineComponent, onMounted, ref } from "vue";
@@ -199,7 +205,7 @@ export default defineComponent({
     const editor = new E("#content");
     editor.i18next = i18next;
     //获取每一列的属性
-    const doc = ref();
+    const doc: any = ref({});
 
     const modalVisible = ref(false);
     const modalLoading = ref(false);
