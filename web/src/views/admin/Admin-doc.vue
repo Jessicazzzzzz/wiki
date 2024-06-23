@@ -219,13 +219,16 @@ export default defineComponent({
     editor.i18next = i18next;
     editor.config.zIndex = 0;
     //获取每一列的属性
-    const doc: any = ref({});
+    const doc: any = ref();
+    doc.value = {};
 
     const modalVisible = ref(false);
     const modalLoading = ref(false);
     // 编辑修改表单数据
+    // 保存数据,修改富文本
     const handleLoading = () => {
       modalLoading.value = true;
+      doc.value.content = editor.txt.html();
       axios.post("/doc/save", doc.value).then((response) => {
         modalLoading.value = false; // 后端只要返回数据,我们就去掉loading 效果
         const data = response.data;

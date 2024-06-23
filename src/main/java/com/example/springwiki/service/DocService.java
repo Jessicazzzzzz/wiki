@@ -1,7 +1,9 @@
 package com.example.springwiki.service;
 
+import com.example.springwiki.domain.Content;
 import com.example.springwiki.domain.Doc;
 import com.example.springwiki.domain.DocExample;
+import com.example.springwiki.mapper.ContentMapper;
 import com.example.springwiki.mapper.DocMapper;
 import com.example.springwiki.req.DocQueryReq;
 import com.example.springwiki.req.DocSaveReq;
@@ -27,6 +29,8 @@ import java.util.List;
 public class DocService {
     @Resource
     private DocMapper docMapper;
+    @Resource
+    private ContentMapper contentMapper;
     @Resource
     private SnowFlake snowFlake;
     private static final Logger Log = LoggerFactory.getLogger(DocService.class);
@@ -74,13 +78,21 @@ public class DocService {
     public void save(DocSaveReq req) {
         // 将请求的参数转换为实体类
         Doc doc = CopyUtil.copy(req, Doc.class);
+        Content content = CopyUtil.copy(req, Content.class);
         if (ObjectUtils.isEmpty(doc.getId())) {
+
             // 新增,是根据是否存在id来决定的
             doc.setId(snowFlake.nextId());
             docMapper.insert(doc);
+            content.setId(doc.getId());// 确保doc 跟 content的ID是一致的
+            contentMapper.insert(content);
         } else {
 //             修改
             docMapper.updateByPrimaryKey(doc);
+            int count = contentMapper.updateByPrimaryKeyWithBLOBs(content);
+            if (count == 0) {// 会存在一种情况就是修改doc,但是content是没有这个ID的富文本内容,那么就是相当于新增
+                contentMapper.insert(content);
+            }
         }
 
     }
