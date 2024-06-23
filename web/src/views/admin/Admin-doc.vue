@@ -19,13 +19,21 @@
             </a-form-item>
           </a-form>
         </p>
-        <!--     添加:pagination 不让页面分页显示,记得加冒号-->
+
+        <!--         v-if="level1.length > 0" 添加这个才能
+                    :default-expand-all-rows="true"生效
+                    因为  :default-expand-all-rows="true"它是只有在页面初始化的时候生效一次
+                    而一开始页面是没有数据的吗所以它就无法展开,之后数据有了, 就不会生效了
+        
+        -->
         <a-table
+          v-if="level1.length > 0"
           :columns="columns"
           :data-source="level1"
           :loading="loading"
           :pagination="false"
           size="small"
+          :default-expand-all-rows="true"
         >
           <template #name="{ text, record }">
             {{ record.sort }} {{ text }}
@@ -34,8 +42,8 @@
           <template v-slot:action="{ text, record }">
             <a-space size="small">
               <a-button type="primary" @click="edit(record)" size="small"
-                >编辑</a-button
-              >
+                >编辑
+              </a-button>
 
               <a-popconfirm
                 title="删除后不可以恢复,确认删除?"
@@ -143,6 +151,7 @@ export default defineComponent({
     const route = useRoute();
 
     const level1 = ref();
+    level1.value = [];
     const loading = ref(false);
 
     const columns = [
@@ -180,7 +189,7 @@ export default defineComponent({
           });
           d.value.unshift({ id: 0, name: "无" });
           console.log("d", d.value);
-          level1.value = [];
+          // level1.value = [];
           level1.value = Tool.array2Tree(docs.value, 0);
           // level1.value = Tool.array2Tree(d.value, 0);
 
