@@ -135,5 +135,16 @@ public class DocService {
         return respList;
     }
 
+    /**
+     * 删除操作
+     *
+     * @param id
+     */
+    public String findContent(Long id) {
+        Content content = contentMapper.selectByPrimaryKey(id);
+        if (content == null) return null;
+        return content.getContent();
+    }
+
 
 }

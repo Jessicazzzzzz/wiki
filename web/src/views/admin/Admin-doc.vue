@@ -201,6 +201,21 @@ export default defineComponent({
     };
 
     /**
+     * 内容查询
+     * 编辑的时候去查询
+     */
+    const handleQueryContent = () => {
+      axios.get("/doc/find-content/" + doc.value.id).then((response) => {
+        const data = response.data;
+        // 查询对page 和size 进行数据校验
+        if (data.success) {
+          editor.txt.html(data.content);
+        } else {
+          message.error(data.message);
+        }
+      });
+    };
+    /**
      * 表格点击页触发
      */
     const handleTableChange = (pagitation: any) => {
@@ -309,12 +324,14 @@ export default defineComponent({
       modalVisible.value = true;
       // 将表单每行的数据复制传给doc, 这样在编辑没保存之前,这不会实时修改页面的
       // 这个是利用JSON.parse(JSON.stringify)深拷贝对象的原来
-      console.log("record", record);
+      // console.log("record", record);
       doc.value = Tool.copy(record);
+      // 因为查询的时候是需要doc的ID,所以必须等到这个时候才去查询
+      handleQueryContent();
       // doc.value?.parent  = doc
-      console.log("doc value", doc.value);
+      // console.log("doc value", doc.value);
       treeData.value = Tool.copy(d.value) || [];
-      console.log("tree value", treeData.value);
+      // console.log("tree value", treeData.value);
       // 将当前节点以及它的子孙节点变成disable
       setDisable(treeData.value, record.id);
       // treeData!.value!.unshift({ id: 0, name: "无" });

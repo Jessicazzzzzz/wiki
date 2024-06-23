@@ -38,6 +38,14 @@ public class DocController {
         return response;
     }
 
+    @GetMapping("/find-content/{id}")
+    public CommonResp findContent(@PathVariable Long id) {
+        CommonResp<String> response = new CommonResp<>();
+        String content = docService.findContent(id);
+        response.setContent(content);
+        return response;
+    }
+
     @GetMapping("/all")
     public CommonResp all() {
         CommonResp<List<DocQueryResp>> response = new CommonResp<>();
@@ -63,7 +71,7 @@ public class DocController {
 
 
     /**
-     * @param id
+     * @param
      * @return
      */
     @DeleteMapping("/delete/{idsStr}")
