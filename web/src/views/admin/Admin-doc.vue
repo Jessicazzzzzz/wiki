@@ -85,6 +85,9 @@
       <a-form-item label="顺序">
         <a-input v-model:value="doc.sort" />
       </a-form-item>
+      <a-form-item label="内容">
+        <div id="content"></div>
+      </a-form-item>
     </a-form>
   </a-modal>
 </template>
@@ -95,6 +98,8 @@ import { message, Modal, TreeSelectProps } from "ant-design-vue";
 import { Tool } from "@/util/tool";
 import { LocationQueryValue, useRoute } from "vue-router";
 import { ExclamationCircleOutlined } from "@ant-design/icons-vue";
+import E from "wangeditor";
+import i18next from "i18next";
 
 export default defineComponent({
   name: "AdminDoc",
@@ -149,6 +154,7 @@ export default defineComponent({
     // axios 的请求写法是固定的,需要带参数,就通过对象的形式,包裹到params中去的
     //  因为参数可能会很多,所以我们就结构p 中一部分的参数
     // 查询传入的参数是: 从哪一页开始查,每页是多少个
+    const d = ref();
     const handleQuery = () => {
       loading.value = true;
       axios.get("/doc/all").then((response) => {
@@ -157,9 +163,19 @@ export default defineComponent({
         // 查询对page 和size 进行数据校验
         if (data.success) {
           docs.value = data.content;
+          // console.log("docs.value", docs.value);
+          d.value = Tool.copy(docs.value);
+          d.value.forEach((item: any) => {
+            item.parent = { parent: item.parent };
+            // console.log("item", item);
+          });
+          d.value.unshift({ id: 0, name: "无" });
+          console.log("d", d.value);
           level1.value = [];
           level1.value = Tool.array2Tree(docs.value, 0);
-          // console.log("level", level1.value);
+          // level1.value = Tool.array2Tree(d.value, 0);
+
+          console.log("level", level1.value);
         } else {
           message.error(data.message);
         }
@@ -180,6 +196,8 @@ export default defineComponent({
 
     // 表单-----
 
+    const editor = new E("#content");
+    editor.i18next = i18next;
     //获取每一列的属性
     const doc = ref();
 
@@ -269,29 +287,32 @@ export default defineComponent({
       // 将表单每行的数据复制传给doc, 这样在编辑没保存之前,这不会实时修改页面的
       // 这个是利用JSON.parse(JSON.stringify)深拷贝对象的原来
       console.log("record", record);
-      let d = Tool.copy(record);
-      d.parent = { parent: record.parent };
-
-      doc.value = Tool.copy(d);
+      doc.value = Tool.copy(record);
       // doc.value?.parent  = doc
       console.log("doc value", doc.value);
-      let t = Tool.copy(level1.value) || [];
-      treeData.value = Tool.copy(level1.value) || [];
-
+      treeData.value = Tool.copy(d.value) || [];
       console.log("tree value", treeData.value);
       // 将当前节点以及它的子孙节点变成disable
       setDisable(treeData.value, record.id);
-      treeData!.value!.unshift({ id: 0, name: "无" });
+      // treeData!.value!.unshift({ id: 0, name: "无" });
+      setTimeout(function () {
+        editor.create();
+      }, 100);
     };
 
     // 新增
     const add = () => {
       modalVisible.value = true;
+
       doc.value = {
         ebookId: route.query.ebookId,
       };
-      treeData.value = Tool.copy(level1.value);
-      treeData!.value!.unshift({ id: 0, name: "无" });
+
+      treeData.value = Tool.copy(d.value);
+      // treeData!.value!.unshift({ id: 0, name: "无" });
+      setTimeout(function () {
+        editor.create();
+      }, 100);
     };
 
     //删除
@@ -350,6 +371,7 @@ export default defineComponent({
       handleDelete,
       param,
       treeData,
+      d,
     };
   },
 });
