@@ -7,7 +7,7 @@
       minHeight: '280px',
     }"
   >
-    <a-row>
+    <a-row :gutter="24">
       <a-col :span="8">
         <p>
           <a-form layout="inline" :model="param">
@@ -25,14 +25,17 @@
           :data-source="level1"
           :loading="loading"
           :pagination="false"
+          size="small"
         >
-          <template #cover="{ text: cover }">
-            <img v-if="cover" :src="cover" alt="avatar" />
+          <template #name="{ text, record }">
+            {{ record.sort }} {{ text }}
           </template>
 
           <template v-slot:action="{ text, record }">
             <a-space size="small">
-              <a-button type="primary" @click="edit(record)">编辑</a-button>
+              <a-button type="primary" @click="edit(record)" size="small"
+                >编辑</a-button
+              >
 
               <a-popconfirm
                 title="删除后不可以恢复,确认删除?"
@@ -40,7 +43,7 @@
                 cancel-text="No"
                 @confirm="handleDelete(record.id)"
               >
-                <a-button type="ghost">删除</a-button>
+                <a-button type="ghost" size="small">删除</a-button>
               </a-popconfirm>
             </a-space>
           </template>
@@ -53,12 +56,19 @@
         <!--            @ok="handleLoading"-->
         <!--            :confirm-loading="modalLoading"-->
         <!--        >-->
-        <a-form :model="doc" :label-col="{ span: 6 }">
-          <a-form-item label="名称">
-            <a-input v-model:value="doc.name" />
+        <p>
+          <a-form layout="inline" :model="param">
+            <a-form-item>
+              <a-button type="primary" @click="handleLoading">保存</a-button>
+            </a-form-item>
+          </a-form>
+        </p>
+        <a-form :model="doc" :label-col="{ span: 6 }" layout="vertical">
+          <a-form-item>
+            <a-input v-model:value="doc.name" placeholder="名称" />
           </a-form-item>
 
-          <a-form-item label="选择父文档">
+          <a-form-item>
             <a-tree-select
               v-model:value="doc.parent"
               style="width: 100%"
@@ -85,10 +95,10 @@
           <!--          </a-select-option>-->
           <!--        </a-select>-->
           <!--      </a-form-item>-->
-          <a-form-item label="顺序">
-            <a-input v-model:value="doc.sort" />
+          <a-form-item>
+            <a-input v-model:value="doc.sort" placeholder="顺序" />
           </a-form-item>
-          <a-form-item label="内容">
+          <a-form-item>
             <div id="content"></div>
           </a-form-item>
         </a-form>
@@ -139,16 +149,9 @@ export default defineComponent({
       {
         title: "名称",
         dataIndex: "name",
+        slots: { customRender: "name" },
       },
-      {
-        title: "父文档",
-        key: "parent",
-        dataIndex: "parent",
-      },
-      {
-        title: "排序",
-        dataIndex: "sort",
-      },
+
       {
         title: "Action",
         key: "action",
@@ -198,12 +201,14 @@ export default defineComponent({
     // page ,size 是跟后端的属性相对应的
     onMounted(() => {
       handleQuery();
+      editor.create();
     });
 
     // 表单-----
 
     const editor = new E("#content");
     editor.i18next = i18next;
+    editor.config.zIndex = 0;
     //获取每一列的属性
     const doc: any = ref({});
 
@@ -301,9 +306,6 @@ export default defineComponent({
       // 将当前节点以及它的子孙节点变成disable
       setDisable(treeData.value, record.id);
       // treeData!.value!.unshift({ id: 0, name: "无" });
-      setTimeout(function () {
-        editor.create();
-      }, 100);
     };
 
     // 新增
@@ -316,9 +318,6 @@ export default defineComponent({
 
       treeData.value = Tool.copy(d.value);
       // treeData!.value!.unshift({ id: 0, name: "无" });
-      setTimeout(function () {
-        editor.create();
-      }, 100);
     };
 
     //删除
