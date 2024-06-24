@@ -120,8 +120,10 @@ public class DocService {
      *
      * @return
      */
-    public List<DocQueryResp> all() {
+    public List<DocQueryResp> all(Long ebookId) {
         DocExample docExample = new DocExample();
+        // 不写成动态查询,这样差不到就返回空,如果写成动态的,那么没有就会全部查出来
+        docExample.createCriteria().andEbookIdEqualTo(ebookId);
         docExample.setOrderByClause("sort asc"); //按照升序排序
         // 查询条件
         DocExample.Criteria criteria = docExample.createCriteria();
@@ -142,7 +144,10 @@ public class DocService {
      */
     public String findContent(Long id) {
         Content content = contentMapper.selectByPrimaryKey(id);
-        if (content == null) return null;
+//        if (content == null) return null;
+        if (ObjectUtils.isEmpty(content)) {
+            return "";
+        }
         return content.getContent();
     }
 

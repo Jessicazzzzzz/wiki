@@ -107,12 +107,27 @@
             <a-input v-model:value="doc.sort" placeholder="顺序" />
           </a-form-item>
           <a-form-item>
+            <a-button type="primary" @click="handlePreviewContent()">
+              <EyeOutlined />
+              内容预览
+            </a-button>
+          </a-form-item>
+          <a-form-item>
             <div id="content"></div>
           </a-form-item>
         </a-form>
         <!--        </a-modal>-->
       </a-col>
     </a-row>
+    <a-drawer
+      width="900"
+      placement="right"
+      :closeable="false"
+      :visible="drawerVisible"
+      @close="onDrawerClose"
+    >
+      <div class="wangeditor" :innerHTML="previewHtml"></div>
+    </a-drawer>
   </a-layout-content>
 </template>
 <script lang="ts">
@@ -175,7 +190,7 @@ export default defineComponent({
     const d = ref();
     const handleQuery = () => {
       loading.value = true;
-      axios.get("/doc/all").then((response) => {
+      axios.get("/doc/all/" + route.query.ebookId).then((response) => {
         loading.value = false;
         const data = response.data;
         // 查询对page 和size 进行数据校验
@@ -192,7 +207,9 @@ export default defineComponent({
           // level1.value = [];
           level1.value = Tool.array2Tree(docs.value, 0);
           // level1.value = Tool.array2Tree(d.value, 0);
-
+          // 父下拉框初始化,相当于点击新增
+          treeData.value = Tool.copy(d.value);
+          // treeData.value?.unshift({ id: 0, name: "无" });
           console.log("level", level1.value);
         } else {
           message.error(data.message);
@@ -235,7 +252,9 @@ export default defineComponent({
     editor.config.zIndex = 0;
     //获取每一列的属性
     const doc: any = ref();
-    doc.value = {};
+    doc.value = {
+      ebookId: route.query.ebookId,
+    };
 
     const modalVisible = ref(false);
     const modalLoading = ref(false);
@@ -393,6 +412,16 @@ export default defineComponent({
 
     const param = ref();
     param.value = {};
+    const drawerVisible = ref(false);
+    const previewHtml = ref();
+    const handlePreviewContent = () => {
+      const html = editor.txt.html();
+      previewHtml.value = html;
+      drawerVisible.value = true;
+    };
+    const onDrawerClose = () => {
+      drawerVisible.value = false;
+    };
 
     return {
       docs,
@@ -411,6 +440,10 @@ export default defineComponent({
       param,
       treeData,
       d,
+      drawerVisible,
+      previewHtml,
+      handlePreviewContent,
+      onDrawerClose,
     };
   },
 });

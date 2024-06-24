@@ -58,6 +58,32 @@ export class Tool {
     return result;
   }
 
+  public static array2Tree2(array: any, parentId: number) {
+    if (Tool.isEmpty(array)) {
+      return [];
+    }
+
+    const result = [];
+    for (let i = 0; i < array.length; i++) {
+      const c = array[i];
+      // console.log(Number(c.parent), Number(parentId));
+
+      // 匹配当前节点的父节点是否是前一个节点
+      if (Number(c.parent.parent) === Number(parentId)) {
+        result.push(c);
+
+        // 递归查看当前节点对应的子节点
+        const children = Tool.array2Tree2(array, c.id);
+        // 每次如果children 有值,就追加到res中去
+        if (Tool.isNotEmpty(children)) {
+          c.children = children;
+        }
+      }
+    }
+
+    return result;
+  }
+
   /**
    * 随机生成[len]长度的[radix]进制数
    * @param len

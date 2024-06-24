@@ -46,10 +46,10 @@ public class DocController {
         return response;
     }
 
-    @GetMapping("/all")
-    public CommonResp all() {
+    @GetMapping("/all/{ebookId}")
+    public CommonResp all(@PathVariable Long ebookId) {
         CommonResp<List<DocQueryResp>> response = new CommonResp<>();
-        List<DocQueryResp> list = docService.all();
+        List<DocQueryResp> list = docService.all(ebookId);
         response.setContent(list);
         return response;
     }
