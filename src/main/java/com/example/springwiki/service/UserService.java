@@ -96,6 +96,7 @@ public class UserService {
             // 跟新,看到如果是Null, 就不会跟新LoginName ,那么前端即使是修改了用户名,也是无法修改的
             //updateByPrimaryKeySelective 表示的是user 中的值有变化才会去跟新user 中修改的值,不然就不跟新
             user.setLoginName(null);
+            user.setPassword(null);
             userMapper.updateByPrimaryKeySelective(user);
         }
 
