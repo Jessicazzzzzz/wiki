@@ -5,11 +5,13 @@ import com.example.springwiki.domain.UserExample;
 import com.example.springwiki.exception.BusinessException;
 import com.example.springwiki.exception.BusinessExceptionCode;
 import com.example.springwiki.mapper.UserMapper;
+import com.example.springwiki.req.UserLoginReq;
 import com.example.springwiki.req.UserQueryReq;
 import com.example.springwiki.req.UserResetPasswordReq;
 import com.example.springwiki.req.UserSaveReq;
-import com.example.springwiki.resp.UserQueryResp;
 import com.example.springwiki.resp.PageResp;
+import com.example.springwiki.resp.UserLoginResp;
+import com.example.springwiki.resp.UserQueryResp;
 import com.example.springwiki.util.CopyUtil;
 import com.example.springwiki.util.SnowFlake;
 import com.github.pagehelper.PageHelper;
@@ -114,6 +116,37 @@ public class UserService {
         User user = CopyUtil.copy(req, User.class);
         userMapper.updateByPrimaryKeySelective(user);//这个就是跟新操作
 
+//
+
+    }
+
+    /**
+     * d登录
+     * 只按用户名去查,再去比对密码
+     *
+     * @param req
+     * @return
+     */
+
+    public UserLoginResp login(UserLoginReq req) {
+        User userDb = selectByLoginName(req.getLoginName());
+        if (ObjectUtils.isEmpty(userDb)) {
+            //这个日志是给自己看的
+            Log.info("用户名不存在,{}", req.getLoginName());
+            // 用户名不存在]
+            throw new BusinessException(BusinessExceptionCode.LOGIN_USER_ERROR);
+        } else {
+            if (userDb.getPassword().equals(req.getPassword())) {
+                //登录成功
+                // 将userDb 的数据拷贝到UserLoginResp中去
+                return CopyUtil.copy(userDb, UserLoginResp.class);
+
+            } else {
+                //密码不对
+                Log.info("密码不对,输入密码{},数据库密码{}", req.getPassword(), userDb.getPassword());
+                throw new BusinessException(BusinessExceptionCode.LOGIN_USER_ERROR);
+            }
+        }
 //
 
     }

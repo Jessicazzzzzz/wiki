@@ -1,11 +1,13 @@
 package com.example.springwiki.controller;
 
+import com.example.springwiki.req.UserLoginReq;
 import com.example.springwiki.req.UserQueryReq;
 import com.example.springwiki.req.UserResetPasswordReq;
 import com.example.springwiki.req.UserSaveReq;
 import com.example.springwiki.resp.CommonResp;
-import com.example.springwiki.resp.UserQueryResp;
 import com.example.springwiki.resp.PageResp;
+import com.example.springwiki.resp.UserLoginResp;
+import com.example.springwiki.resp.UserQueryResp;
 import com.example.springwiki.service.UserService;
 import org.springframework.util.DigestUtils;
 import org.springframework.web.bind.annotation.*;
@@ -59,6 +61,22 @@ public class UserController {
         req.setPassword(DigestUtils.md5DigestAsHex(req.getPassword().getBytes()));
         CommonResp response = new CommonResp<>();
         userService.resetPassword(req);
+        return response;
+    }
+
+    /**
+     * 登录
+     *
+     * @param req
+     * @return
+     */
+    @PostMapping("/login")
+    public CommonResp login(@Valid @RequestBody UserLoginReq req) {
+        // 密码进行加密
+        req.setPassword(DigestUtils.md5DigestAsHex(req.getPassword().getBytes()));
+        CommonResp<UserLoginResp> response = new CommonResp<>();
+        UserLoginResp userLoginResp = userService.login(req);
+        response.setContent(userLoginResp);
         return response;
     }
 
