@@ -6,6 +6,7 @@ import com.example.springwiki.exception.BusinessException;
 import com.example.springwiki.exception.BusinessExceptionCode;
 import com.example.springwiki.mapper.UserMapper;
 import com.example.springwiki.req.UserQueryReq;
+import com.example.springwiki.req.UserResetPasswordReq;
 import com.example.springwiki.req.UserSaveReq;
 import com.example.springwiki.resp.UserQueryResp;
 import com.example.springwiki.resp.PageResp;
@@ -99,6 +100,21 @@ public class UserService {
             user.setPassword(null);
             userMapper.updateByPrimaryKeySelective(user);
         }
+
+    }
+
+    /**
+     * 修改密码
+     *
+     * @param req
+     */
+    public void resetPassword(UserResetPasswordReq req) {
+        // 将请求的参数转换为实体类
+        // UserResetPasswordReq  中只有两个字段,所以copy 到实体类之后,也只会有两个字段
+        User user = CopyUtil.copy(req, User.class);
+        userMapper.updateByPrimaryKeySelective(user);//这个就是跟新操作
+
+//
 
     }
 

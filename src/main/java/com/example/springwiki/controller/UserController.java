@@ -1,6 +1,7 @@
 package com.example.springwiki.controller;
 
 import com.example.springwiki.req.UserQueryReq;
+import com.example.springwiki.req.UserResetPasswordReq;
 import com.example.springwiki.req.UserSaveReq;
 import com.example.springwiki.resp.CommonResp;
 import com.example.springwiki.resp.UserQueryResp;
@@ -49,6 +50,15 @@ public class UserController {
         req.setPassword(DigestUtils.md5DigestAsHex(req.getPassword().getBytes()));
         CommonResp response = new CommonResp<>();
         userService.save(req);
+        return response;
+    }
+
+    @PostMapping("/reset-password")
+    public CommonResp resetPassword(@Valid @RequestBody UserResetPasswordReq req) {
+        // 密码进行加密
+        req.setPassword(DigestUtils.md5DigestAsHex(req.getPassword().getBytes()));
+        CommonResp response = new CommonResp<>();
+        userService.resetPassword(req);
         return response;
     }
 
