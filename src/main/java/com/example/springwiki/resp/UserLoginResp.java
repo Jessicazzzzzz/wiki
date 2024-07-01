@@ -4,7 +4,25 @@ public class UserLoginResp {
     private Long id;
     private String loginName;
     private String name;
+    private String token;
 
+    @Override
+    public String toString() {
+        return "UserLoginResp{" +
+                "id=" + id +
+                ", loginName='" + loginName + '\'' +
+                ", name='" + name + '\'' +
+                ", token='" + token + '\'' +
+                '}';
+    }
+
+    public String getToken() {
+        return token;
+    }
+
+    public void setToken(String token) {
+        this.token = token;
+    }
 
     public Long getId() {
         return id;
@@ -31,15 +49,4 @@ public class UserLoginResp {
     }
 
 
-    @Override
-    public String toString() {
-        String sb = getClass().getSimpleName() +
-                " [" +
-                "Hash = " + hashCode() +
-                ", id=" + id +
-                ", loginName=" + loginName +
-                ", name=" + name +
-                "]";
-        return sb;
-    }
 }
