@@ -95,7 +95,7 @@ public class UserController {
 
         userLoginResp.setToken(token.toString());
         // 设置token 到redis 中去
-        redisTemplate.opsForValue().set(token, JSONObject.toJSONString(userLoginResp), 3600 * 24, TimeUnit.SECONDS);
+        redisTemplate.opsForValue().set(token.toString(), JSONObject.toJSONString(userLoginResp), 3600 * 24, TimeUnit.SECONDS);
 
         response.setContent(userLoginResp);
         return response;
