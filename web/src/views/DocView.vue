@@ -22,6 +22,16 @@
           </a-tree>
         </a-col>
         <a-col :span="18">
+          <div>
+            <h2>{{ doc.name }}</h2>
+            <div>
+              <span>阅读数:{{ doc.viewCount }}</span>
+              <span>点赞数:{{ doc.voteCount }}</span>
+            </div>
+            <a-divider
+              style="height: 2px; background-color: #9999cc"
+            ></a-divider>
+          </div>
           <div class="wangeditor" :innerHTML="html"></div>
         </a-col>
       </a-row>
@@ -74,6 +84,10 @@ export default defineComponent({
     // 查询传入的参数是: 从哪一页开始查,每页是多少个
     const d = ref([]);
 
+    // 当前选中的文档
+    const doc = ref();
+    doc.value = {};
+
     // 内容查询
     const handleQueryContent = (id: number) => {
       axios.get("/doc/find-content/" + id).then((response) => {
@@ -111,6 +125,8 @@ export default defineComponent({
           if (Tool.isNotEmpty(treeData)) {
             defaultSelectedKeys.value = [treeData.value[0].id];
             handleQueryContent(treeData.value[0].id);
+            // 将第一个节点的内容赋给doc
+            doc.value = treeData.value[0];
           }
         } else {
           message.error(data.message);
@@ -122,6 +138,8 @@ export default defineComponent({
       console.log("selectedKeys", selectedKeys);
       if (Tool.isNotEmpty(selectedKeys)) {
         handleQueryContent(selectedKeys[0]);
+        //选中某一节点,加载该节点的文档信息
+        doc.value = info.selectedNodes[0];
       }
     };
 
@@ -136,6 +154,7 @@ export default defineComponent({
       html,
       treeData,
       defaultSelectedKeys,
+      doc,
     };
   },
 });
