@@ -5,6 +5,7 @@ import com.example.springwiki.domain.Doc;
 import com.example.springwiki.domain.DocExample;
 import com.example.springwiki.mapper.ContentMapper;
 import com.example.springwiki.mapper.DocMapper;
+import com.example.springwiki.mapper.MyDocMapper;
 import com.example.springwiki.req.DocQueryReq;
 import com.example.springwiki.req.DocSaveReq;
 import com.example.springwiki.resp.DocQueryResp;
@@ -33,6 +34,8 @@ public class DocService {
     private ContentMapper contentMapper;
     @Resource
     private SnowFlake snowFlake;
+    @Resource
+    private MyDocMapper myDocMapper;
     private static final Logger Log = LoggerFactory.getLogger(DocService.class);
 
     public PageResp<DocQueryResp> list(DocQueryReq req) {
@@ -83,6 +86,8 @@ public class DocService {
 
             // 新增,是根据是否存在id来决定的
             doc.setId(snowFlake.nextId());
+            doc.setViewCount(0);
+            doc.setVoteCount(0);
             docMapper.insert(doc);
             content.setId(doc.getId());// 确保doc 跟 content的ID是一致的
             contentMapper.insert(content);
@@ -144,6 +149,8 @@ public class DocService {
      */
     public String findContent(Long id) {
         Content content = contentMapper.selectByPrimaryKey(id);
+        //文档阅读数加1
+        myDocMapper.increaseViewCount(id);
 //        if (content == null) return null;
         if (ObjectUtils.isEmpty(content)) {
             return "";
