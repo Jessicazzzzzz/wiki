@@ -3,6 +3,8 @@ package com.example.springwiki.service;
 import com.example.springwiki.domain.Content;
 import com.example.springwiki.domain.Doc;
 import com.example.springwiki.domain.DocExample;
+import com.example.springwiki.exception.BusinessException;
+import com.example.springwiki.exception.BusinessExceptionCode;
 import com.example.springwiki.mapper.ContentMapper;
 import com.example.springwiki.mapper.DocMapper;
 import com.example.springwiki.mapper.MyDocMapper;
@@ -11,6 +13,8 @@ import com.example.springwiki.req.DocSaveReq;
 import com.example.springwiki.resp.DocQueryResp;
 import com.example.springwiki.resp.PageResp;
 import com.example.springwiki.util.CopyUtil;
+import com.example.springwiki.util.RedisUtil;
+import com.example.springwiki.util.RequestContext;
 import com.example.springwiki.util.SnowFlake;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
@@ -36,6 +40,8 @@ public class DocService {
     private SnowFlake snowFlake;
     @Resource
     private MyDocMapper myDocMapper;
+    @Resource
+    private RedisUtil redisUtil;
     private static final Logger Log = LoggerFactory.getLogger(DocService.class);
 
     public PageResp<DocQueryResp> list(DocQueryReq req) {
@@ -160,6 +166,14 @@ public class DocService {
 
 
     public void vote(Long id) {
-        myDocMapper.increaseVoteCount(id);
+//        myDocMapper.increaseVoteCount(id);
+        //远程ip + doc.id 作为key ,24小时内不能重复
+        String key = RequestContext.getRemoteAddress();
+        if (redisUtil.validateRepeat("DOC_VOTE_" + id + "_" + key, 3600 * 24)) {
+            myDocMapper.increaseVoteCount(id);
+        } else {
+            throw new BusinessException(BusinessExceptionCode.VOTE_REPEAT);
+        }
+
     }
 }
