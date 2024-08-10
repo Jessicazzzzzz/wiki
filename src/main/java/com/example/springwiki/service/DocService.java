@@ -42,7 +42,10 @@ public class DocService {
     private MyDocMapper myDocMapper;
     @Resource
     private RedisUtil redisUtil;
+    @Resource
+    private WsService wsService;
     private static final Logger Log = LoggerFactory.getLogger(DocService.class);
+
 
     public PageResp<DocQueryResp> list(DocQueryReq req) {
         DocExample docExample = new DocExample();
@@ -174,8 +177,11 @@ public class DocService {
         } else {
             throw new BusinessException(BusinessExceptionCode.VOTE_REPEAT);
         }
-
+        // 推送消息
+        Doc docDb = docMapper.selectByPrimaryKey(id);
+        wsService.sendInfo("[" + docDb.getName() + "]被点赞!");
     }
+
 
     public void updateEbookInfo() {
         myDocMapper.updateEbookInfo();
