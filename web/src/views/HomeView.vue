@@ -43,9 +43,26 @@
         <template #renderItem="{ item }">
           <a-list-item key="item.name">
             <template #actions>
-              <span v-for="{ icon, text } in actions" :key="text">
-                <component :is="icon" style="margin-right: 8px" />
-                {{ text }}
+              <span>
+                <component
+                  v-bind:is="'LikeOutlined'"
+                  style="margin-right: 8px"
+                />
+                {{ item.voteCount }}
+              </span>
+              <span>
+                <component
+                  v-bind:is="'FileOutlined'"
+                  style="margin-right: 8px"
+                />
+                {{ item.docCount }}
+              </span>
+              <span>
+                <component
+                  v-bind:is="'UserOutlined'"
+                  style="margin-right: 8px"
+                />
+                {{ item.viewCount }}
               </span>
             </template>
 
@@ -92,6 +109,7 @@ const listData: Record<string, string>[] = [];
 // }
 export default defineComponent({
   name: "HomeView",
+  methods: { LikeOutlined },
 
   setup() {
     console.log("setup");
@@ -160,11 +178,6 @@ export default defineComponent({
         },
         pageSize: 3,
       },
-      actions: [
-        { icon: StarOutlined, text: "156" },
-        { icon: LikeOutlined, text: "156" },
-        { icon: MessageOutlined, text: "2" },
-      ],
     };
   },
 });
