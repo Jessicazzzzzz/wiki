@@ -22,6 +22,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.ObjectUtils;
 
 import javax.annotation.Resource;
@@ -88,6 +89,7 @@ public class DocService {
      *
      * @param req
      */
+    @Transactional
     public void save(DocSaveReq req) {
         // 将请求的参数转换为实体类
         Doc doc = CopyUtil.copy(req, Doc.class);
