@@ -196,9 +196,9 @@ export default defineComponent({
         // 查询对page 和size 进行数据校验
         if (data.success) {
           docs.value = data.content;
-          // console.log("docs.value", docs.value);
+          console.log("docs.value", docs.value);
           d.value = Tool.copy(docs.value);
-          d.value.forEach((item: any) => {
+          d!.value!.forEach((item: any) => {
             item.parent = { parent: item.parent };
             // console.log("item", item);
           });
