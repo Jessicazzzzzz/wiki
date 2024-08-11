@@ -19,7 +19,7 @@ public class RedisUtil {
     private RedisTemplate redisTemplate;
 
     public boolean validateRepeat(String key, long second) {
-        if (redisTemplate.hasKey(key)) {
+        if (Boolean.TRUE.equals(redisTemplate.hasKey(key))) {
             LOG.info("key已经存在:{}", key);
             return false;
         } else {
